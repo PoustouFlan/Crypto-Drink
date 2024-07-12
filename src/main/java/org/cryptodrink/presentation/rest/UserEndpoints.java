@@ -23,11 +23,11 @@ public class UserEndpoints {
 
     @Path("/{username}")
     @GET
-    public Response getCryptoHackUser(@PathParam("username") String username)
+    public Response getUser(@PathParam("username") String username)
     {
-        Optional<UserEntity> user = userService.findUserByName(username);
+        Optional<UserEntity> user = userService.find(username);
         if (user.isEmpty())
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
         UserResponse response = userConverter.convert(user.get());
         return Response.ok().entity(response).build();
     }

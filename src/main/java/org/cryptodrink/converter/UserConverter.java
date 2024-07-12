@@ -43,7 +43,7 @@ public class UserConverter {
                 user.getLevel(),
                 user.getRank(),
                 user.getScore(),
-                solved.stream().map(solvedChallengeConverter::convert).toList(),
+                solved.stream().map(solvedChallengeConverter::convertChallenge).toList(),
                 user.getUsername(),
                 user.getWebsite()
         );

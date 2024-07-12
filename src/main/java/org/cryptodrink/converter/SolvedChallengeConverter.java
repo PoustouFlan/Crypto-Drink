@@ -4,6 +4,7 @@ package org.cryptodrink.converter;
 import org.cryptodrink.data.model.SolvedChallengeModel;
 import org.cryptodrink.domain.entity.SolvedChallengeEntity;
 import org.cryptodrink.presentation.rest.response.SolvedChallengeResponse;
+import org.cryptodrink.presentation.rest.response.SolvedUserResponse;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -12,20 +13,32 @@ import javax.inject.Inject;
 public class SolvedChallengeConverter {
     @Inject
     ChallengeConverter challengeConverter;
+    @Inject
+    UserConverter userConverter;
 
     public SolvedChallengeEntity convert(SolvedChallengeModel solved)
     {
         return new SolvedChallengeEntity(
-            solved.getDate(), challengeConverter.convert(solved.getChallenge())
+            solved.getDate(),
+            userConverter.convert(solved.getUser()),
+            challengeConverter.convert(solved.getChallenge())
         );
     }
 
-    public SolvedChallengeResponse convert(SolvedChallengeEntity solved)
+    public SolvedChallengeResponse convertChallenge(SolvedChallengeEntity solved)
     {
         return new SolvedChallengeResponse(
-                solved.date().toString(), // TODO format
-                solved.challenge().getCategory(),
-                solved.challenge().getName()
+                solved.getDate().toString(), // TODO format
+                solved.getChallenge().getCategory(),
+                solved.getChallenge().getName()
+        );
+    }
+
+    public SolvedUserResponse convertUser(SolvedChallengeEntity solved)
+    {
+        return new SolvedUserResponse(
+                solved.getDate().toString(), // TODO format
+                solved.getUser().getUsername()
         );
     }
 }
