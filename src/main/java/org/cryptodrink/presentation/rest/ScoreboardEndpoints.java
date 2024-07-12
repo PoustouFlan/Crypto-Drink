@@ -2,8 +2,11 @@ package org.cryptodrink.presentation.rest;
 
 import org.cryptodrink.converter.ScoreboardConverter;
 import org.cryptodrink.domain.entity.ScoreboardEntity;
+import org.cryptodrink.domain.entity.UserEntity;
 import org.cryptodrink.domain.service.ScoreboardService;
-import org.cryptodrink.presentation.rest.request.CreateScoreboardRequest;
+import org.cryptodrink.domain.service.UserService;
+import org.cryptodrink.presentation.rest.request.ScoreboardCreateRequest;
+import org.cryptodrink.presentation.rest.request.ScoreboardSubscribeRequest;
 import org.cryptodrink.presentation.rest.response.ScoreboardResponse;
 
 import javax.inject.Inject;
@@ -23,6 +26,9 @@ public class ScoreboardEndpoints {
     @Inject
     ScoreboardConverter scoreboardConverter;
 
+    @Inject
+    UserService userService;
+
     private static final Pattern VALID_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9_.~-]+$");
 
     @Path("/{name}")
@@ -38,7 +44,7 @@ public class ScoreboardEndpoints {
 
     @Path("/")
     @POST
-    public Response createScoreboard(CreateScoreboardRequest request)
+    public Response createScoreboard(ScoreboardCreateRequest request)
     {
         if (!VALID_NAME_PATTERN.matcher(request.getName()).matches())
             return Response.status(Response.Status.BAD_REQUEST).entity("Invalid scoreboard name").build();
@@ -48,5 +54,21 @@ public class ScoreboardEndpoints {
         scoreboard = scoreboardService.create(request.getName());
         ScoreboardResponse response = scoreboardConverter.convert(scoreboard.get());
         return Response.status(Response.Status.CREATED).entity(response).build();
+    }
+
+    @Path("/{name}/subscribe")
+    @POST
+    public Response subscribeToScoreboard(@PathParam("name") String name, ScoreboardSubscribeRequest request)
+    {
+        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(name);
+        if (scoreboard.isEmpty())
+            return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
+        Optional<UserEntity> user = userService.find(request.getUsername(), true, true);
+        if (user.isEmpty())
+            return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+        ScoreboardEntity newScoreboard = scoreboardService.subscribeUser(scoreboard.get(), user.get());
+        if (scoreboard.get().equals(newScoreboard))
+            return Response.status(Response.Status.CONFLICT).entity("User already in scoreboard").build();
+        return Response.ok(scoreboardConverter.convert(newScoreboard)).build();
     }
 }
