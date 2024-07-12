@@ -3,10 +3,13 @@ package org.cryptodrink.presentation.rest;
 import org.cryptodrink.converter.ScoreboardConverter;
 import org.cryptodrink.domain.entity.ScoreboardEntity;
 import org.cryptodrink.domain.entity.UserEntity;
+import org.cryptodrink.domain.entity.WebhookEntity;
 import org.cryptodrink.domain.service.ScoreboardService;
 import org.cryptodrink.domain.service.UserService;
+import org.cryptodrink.domain.service.WebhookService;
 import org.cryptodrink.presentation.rest.request.ScoreboardCreateRequest;
 import org.cryptodrink.presentation.rest.request.ScoreboardSubscribeRequest;
+import org.cryptodrink.presentation.rest.request.ScoreboardWebhookRequest;
 import org.cryptodrink.presentation.rest.response.ScoreboardResponse;
 
 import javax.inject.Inject;
@@ -28,6 +31,9 @@ public class ScoreboardEndpoints {
 
     @Inject
     UserService userService;
+
+    @Inject
+    WebhookService webhookService;
 
     private static final Pattern VALID_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9_.~-]+$");
 
@@ -69,6 +75,19 @@ public class ScoreboardEndpoints {
         ScoreboardEntity newScoreboard = scoreboardService.subscribeUser(scoreboard.get(), user.get());
         if (scoreboard.get().equals(newScoreboard))
             return Response.status(Response.Status.CONFLICT).entity("User already in scoreboard").build();
+        return Response.ok(scoreboardConverter.convert(newScoreboard)).build();
+    }
+
+    @Path("/{name}/webhook")
+    @POST
+    public Response addWebhookToScoreboard(@PathParam("name") String name, ScoreboardWebhookRequest request)
+    {
+        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(name);
+        if (scoreboard.isEmpty())
+            return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
+        ScoreboardEntity newScoreboard = scoreboardService.addWebhook(scoreboard.get(), request.getUrl());
+        if (scoreboard.get().equals(newScoreboard))
+            return Response.status(Response.Status.CONFLICT).entity("Webhook already registered").build();
         return Response.ok(scoreboardConverter.convert(newScoreboard)).build();
     }
 }

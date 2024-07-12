@@ -1,16 +1,21 @@
 package org.cryptodrink.domain.service;
 
 import org.cryptodrink.converter.ScoreboardConverter;
+import org.cryptodrink.converter.WebhookConverter;
 import org.cryptodrink.data.model.ScoreboardModel;
 import org.cryptodrink.data.model.UserModel;
+import org.cryptodrink.data.model.WebhookModel;
 import org.cryptodrink.data.repository.ScoreboardRepository;
 import org.cryptodrink.data.repository.UserRepository;
+import org.cryptodrink.data.repository.WebhookRepository;
 import org.cryptodrink.domain.entity.ScoreboardEntity;
 import org.cryptodrink.domain.entity.UserEntity;
+import org.cryptodrink.domain.entity.WebhookEntity;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -18,7 +23,11 @@ public class ScoreboardService {
     @Inject
     ScoreboardRepository scoreboards;
     @Inject
+    WebhookRepository webhooks;
+    @Inject
     ScoreboardConverter scoreboardConverter;
+    @Inject
+    WebhookConverter webhookConverter;
     @Inject
     UserRepository users;
 
@@ -48,5 +57,26 @@ public class ScoreboardService {
         scoreboardModel.getUsers().add(userModel);
         scoreboards.persist(scoreboardModel);
         return scoreboardConverter.convert(scoreboardModel);
+    }
+
+    @Transactional
+    public ScoreboardEntity addWebhook(ScoreboardEntity scoreboard, String url)
+    {
+        if (getWebhooks(scoreboard).stream().anyMatch(webhook -> webhook.getUrl().equalsIgnoreCase(url)))
+            return scoreboard;
+        ScoreboardModel scoreboardModel = scoreboards.findById(scoreboard.getId());
+        WebhookModel webhook = new WebhookModel();
+        webhook.setUrl(url);
+        webhook.setScoreboard(scoreboardModel);
+        webhooks.persist(webhook);
+        scoreboardModel.getWebhooks().add(webhook);
+        scoreboards.persist(scoreboardModel);
+        return scoreboardConverter.convert(scoreboardModel);
+    }
+
+    public List<WebhookEntity> getWebhooks(ScoreboardEntity scoreboard)
+    {
+        ScoreboardModel model = scoreboards.findById(scoreboard.getId());
+        return model.getWebhooks().stream().map(webhookConverter::convert).toList();
     }
 }

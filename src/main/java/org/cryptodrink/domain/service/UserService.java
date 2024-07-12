@@ -1,9 +1,11 @@
 package org.cryptodrink.domain.service;
 
+import org.cryptodrink.converter.ScoreboardConverter;
 import org.cryptodrink.converter.SolvedChallengeConverter;
 import org.cryptodrink.converter.UserConverter;
 import org.cryptodrink.data.model.UserModel;
 import org.cryptodrink.data.repository.UserRepository;
+import org.cryptodrink.domain.entity.ScoreboardEntity;
 import org.cryptodrink.domain.entity.SolvedChallengeEntity;
 import org.cryptodrink.domain.entity.UserEntity;
 import org.cryptodrink.domain.service.cryptohack.CryptoHackAPI;
@@ -27,6 +29,8 @@ public class UserService {
     UserConverter userConverter;
     @Inject
     SolvedChallengeConverter solvedChallengeConverter;
+    @Inject
+    ScoreboardConverter scoreboardConverter;
 
     public Optional<UserEntity> find(String username, Boolean databaseAllowed, Boolean apiAllowed)
     {
@@ -48,9 +52,15 @@ public class UserService {
         return Optional.of(userConverter.convert(user.get()));
     }
 
-    public List<SolvedChallengeEntity> getSolvedChallenge(UserEntity user)
+    public List<SolvedChallengeEntity> getSolvedChallenges(UserEntity user)
     {
         UserModel model = users.findById(user.getId());
         return model.getSolvedChallenges().stream().map(solvedChallengeConverter::convert).toList();
+    }
+
+    public List<ScoreboardEntity> getScoreboards(UserEntity user)
+    {
+        UserModel model = users.findById(user.getId());
+        return model.getScoreboards().stream().map(scoreboardConverter::convert).toList();
     }
 }

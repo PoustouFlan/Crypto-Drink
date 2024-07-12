@@ -3,11 +3,14 @@ package org.cryptodrink.domain.service.cryptohack;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cryptodrink.converter.ChallengeConverter;
+import org.cryptodrink.converter.UserConverter;
 import org.cryptodrink.data.model.ChallengeModel;
 import org.cryptodrink.data.model.SolvedChallengeModel;
 import org.cryptodrink.data.model.UserModel;
 import org.cryptodrink.data.repository.ChallengeRepository;
 import org.cryptodrink.data.repository.UserRepository;
+import org.cryptodrink.domain.service.WebhookService;
 import org.cryptodrink.presentation.rest.response.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,15 @@ public class CryptoHackAPI {
 
     @Inject
     ChallengeRepository challenges;
+
+    @Inject
+    UserConverter userConverter;
+
+    @Inject
+    ChallengeConverter challengeConverter;
+
+    @Inject
+    WebhookService webhookService;
 
     public Optional<CryptoHackResponse> getUserInfo(String username)
     {
@@ -100,7 +112,7 @@ public class CryptoHackAPI {
         user.setWebsite(userInfo.getWebsite());
 
         List<SolvedChallengeModel> solvedChallenges = user.getSolvedChallenges();
-        solvedChallenges.clear();
+        List<SolvedChallengeModel> newSolved = new ArrayList<>();
 
         for (CryptoHackResponse.SolvedChallenge solved : userInfo.getSolvedChallenges())
         {
@@ -112,13 +124,17 @@ public class CryptoHackAPI {
             challenge.setSolves(solved.getSolves());
             challenges.persist(challenge);
 
+            if (solvedChallenges.stream().noneMatch(s -> s.getChallenge().getId().equals(challenge.getId())))
+                webhookService.announce(userConverter.convert(user), challengeConverter.convert(challenge));
+
             SolvedChallengeModel solvedChallenge = new SolvedChallengeModel();
             solvedChallenge.setUser(user);
             solvedChallenge.setChallenge(challenge);
             solvedChallenge.setDate(LocalDate.parse(solved.getDate(), formatter));
-            solvedChallenges.add(solvedChallenge);
+            newSolved.add(solvedChallenge);
         }
 
+        user.setSolvedChallenges(newSolved);
         users.persist(user);
     }
 }

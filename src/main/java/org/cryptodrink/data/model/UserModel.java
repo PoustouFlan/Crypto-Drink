@@ -1,14 +1,10 @@
 package org.cryptodrink.data.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -30,4 +26,7 @@ public class UserModel {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SolvedChallengeModel> solvedChallenges = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "users")
+    private List<ScoreboardModel> scoreboards = new ArrayList<>();
 }

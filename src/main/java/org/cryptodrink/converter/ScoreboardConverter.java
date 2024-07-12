@@ -12,6 +12,9 @@ public class ScoreboardConverter {
     @Inject
     UserConverter userConverter;
 
+    @Inject
+    WebhookConverter webhookConverter;
+
     public ScoreboardEntity convert(ScoreboardModel scoreboard)
     {
         return new ScoreboardEntity(

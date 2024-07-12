@@ -1,9 +1,6 @@
 package org.cryptodrink.data.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -25,4 +22,7 @@ public class ScoreboardModel {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<UserModel> users = new ArrayList<>();
+
+    @OneToMany(mappedBy = "scoreboard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WebhookModel> webhooks = new ArrayList<>();
 }

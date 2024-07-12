@@ -35,7 +35,7 @@ public class UserConverter {
 
     public UserResponse convert(UserEntity user)
     {
-        List<SolvedChallengeEntity> solved = userService.getSolvedChallenge(user);
+        List<SolvedChallengeEntity> solved = userService.getSolvedChallenges(user);
         return new UserResponse(
                 user.getCountry(),
                 user.getFirstBloods(),
