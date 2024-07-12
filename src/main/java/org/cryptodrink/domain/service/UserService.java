@@ -28,26 +28,24 @@ public class UserService {
     @Inject
     SolvedChallengeConverter solvedChallengeConverter;
 
-    public Optional<UserEntity> find(String username, Boolean refreshIfEmpty)
+    public Optional<UserEntity> find(String username, Boolean databaseAllowed, Boolean apiAllowed)
     {
-        logger.debug("Looking for {} in database", username);
-        Optional<UserModel> user = users
-                .find("LOWER(username)", username.toLowerCase())
-                .firstResultOptional();
+        Optional<UserModel> user = Optional.empty();
+        if (databaseAllowed) {
+            logger.debug("Looking for {} in database", username);
+            user = users
+                    .find("LOWER(username)", username.toLowerCase())
+                    .firstResultOptional();
+        }
         if (user.isEmpty()) {
             logger.debug("User {} not found in database", username);
-            if (refreshIfEmpty) {
+            if (apiAllowed) {
                 cryptoHack.updateUserInfo(username);
-                return find(username, false);
+                return find(username, true, false);
             }
             return Optional.empty();
         }
         return Optional.of(userConverter.convert(user.get()));
-    }
-
-    public Optional<UserEntity> find(String username)
-    {
-        return find(username, true);
     }
 
     public List<SolvedChallengeEntity> getSolvedChallenge(UserEntity user)

@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
 
-@Path("/user")
+@Path("/api/user")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class UserEndpoints {
@@ -25,7 +25,24 @@ public class UserEndpoints {
     @GET
     public Response getUser(@PathParam("username") String username)
     {
-        Optional<UserEntity> user = userService.find(username);
+        Optional<UserEntity> user = userService.find(username, true, true);
+        if (user.isEmpty())
+            return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+        UserResponse response = userConverter.convert(user.get());
+        return Response.ok().entity(response).build();
+    }
+
+    @Path("/{username}")
+    @POST
+    public Response postUser(@PathParam("username") String username)
+    {
+        return getUser(username);
+    }
+
+    @Path("/{username}")
+    @PUT
+    public Response updateUser(@PathParam("username") String username) {
+        Optional<UserEntity> user = userService.find(username, false, true);
         if (user.isEmpty())
             return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
         UserResponse response = userConverter.convert(user.get());
