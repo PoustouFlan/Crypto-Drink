@@ -5,6 +5,7 @@ import org.cryptodrink.domain.entity.ChallengeEntity;
 import org.cryptodrink.domain.entity.ScoreboardEntity;
 import org.cryptodrink.domain.entity.UserEntity;
 import org.cryptodrink.domain.entity.WebhookEntity;
+import org.cryptodrink.domain.service.ConfigService;
 import org.cryptodrink.domain.service.ScoreboardService;
 import org.cryptodrink.domain.service.UserService;
 import org.slf4j.Logger;
@@ -28,6 +29,8 @@ public class WebhookService {
     UserService userService;
     @Inject
     ScoreboardService scoreboardService;
+    @Inject
+    ConfigService configService;
 
     public void announce(UserEntity user, ChallengeEntity challenge)
     {
@@ -54,12 +57,12 @@ public class WebhookService {
                         :flag_fr: %s
                         :star: %d\t:triangular_flag_on_post: TODO
                         Niveau : %d
-                        Rang : %d / TODO
+                        Rang : %d / %d
                     """,
                     user.getUsername(),
                     user.getScore(),
                     user.getLevel(),
-                    user.getRank()
+                    user.getRank(), configService.getTotalUser()
             ));
 
             WebhookRequest.Embed.Field field = new WebhookRequest.Embed.Field();

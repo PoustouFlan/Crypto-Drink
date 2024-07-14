@@ -9,7 +9,9 @@ import org.cryptodrink.data.model.ChallengeModel;
 import org.cryptodrink.data.model.SolvedChallengeModel;
 import org.cryptodrink.data.model.UserModel;
 import org.cryptodrink.data.repository.ChallengeRepository;
+import org.cryptodrink.data.repository.ConfigRepository;
 import org.cryptodrink.data.repository.UserRepository;
+import org.cryptodrink.domain.service.ConfigService;
 import org.cryptodrink.domain.service.webhook.WebhookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,9 @@ public class CryptoHackAPI {
 
     @Inject
     WebhookService webhookService;
+
+    @Inject
+    ConfigService configService;
 
     public Optional<CryptoHackResponse> getUserInfo(String username)
     {
@@ -88,18 +93,22 @@ public class CryptoHackAPI {
         }
     }
 
-    @Transactional
-    public void updateUserInfo(String username)
-    {
+    public void updateUserInfo(String username) {
         Optional<CryptoHackResponse> response = getUserInfo(username);
         if (response.isEmpty())
             return;
         logger.debug("Updating entry for user {} in database", username);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
         CryptoHackResponse userInfo = response.get();
+        saveUserInfo(userInfo);
+    }
 
+    @Transactional
+    public void saveUserInfo(CryptoHackResponse userInfo) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
+
+        configService.setTotalUser(userInfo.getUserCount());
         UserModel user = users
-                .find("LOWER(username)", username.toLowerCase())
+                .find("LOWER(username)", userInfo.getUsername().toLowerCase())
                 .firstResultOptional().orElse(new UserModel());
         user.setUsername(userInfo.getUsername());
         user.setCountry(userInfo.getCountry());
