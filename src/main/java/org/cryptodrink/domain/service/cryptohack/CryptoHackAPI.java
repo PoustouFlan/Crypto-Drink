@@ -10,8 +10,7 @@ import org.cryptodrink.data.model.SolvedChallengeModel;
 import org.cryptodrink.data.model.UserModel;
 import org.cryptodrink.data.repository.ChallengeRepository;
 import org.cryptodrink.data.repository.UserRepository;
-import org.cryptodrink.domain.service.WebhookService;
-import org.cryptodrink.presentation.rest.response.UserResponse;
+import org.cryptodrink.domain.service.webhook.WebhookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +109,7 @@ public class CryptoHackAPI {
         user.setRank(userInfo.getRank());
         user.setScore(userInfo.getScore());
         user.setWebsite(userInfo.getWebsite());
+        users.persist(user);
 
         List<SolvedChallengeModel> solvedChallenges = user.getSolvedChallenges();
         List<SolvedChallengeModel> newSolved = new ArrayList<>();
@@ -124,9 +124,6 @@ public class CryptoHackAPI {
             challenge.setSolves(solved.getSolves());
             challenges.persist(challenge);
 
-            if (solvedChallenges.stream().noneMatch(s -> s.getChallenge().getId().equals(challenge.getId())))
-                webhookService.announce(userConverter.convert(user), challengeConverter.convert(challenge));
-
             SolvedChallengeModel solvedChallenge = new SolvedChallengeModel();
             solvedChallenge.setUser(user);
             solvedChallenge.setChallenge(challenge);
@@ -134,7 +131,13 @@ public class CryptoHackAPI {
             newSolved.add(solvedChallenge);
         }
 
-        user.setSolvedChallenges(newSolved);
+        for (SolvedChallengeModel solved : newSolved) {
+            if (solvedChallenges.stream().noneMatch(s -> s.getChallenge().getId().equals(solved.getChallenge().getId())))
+                webhookService.announce(userConverter.convert(user), challengeConverter.convert(solved.getChallenge()));
+        }
+
+        solvedChallenges.clear();
+        solvedChallenges.addAll(newSolved);
         users.persist(user);
     }
 }
