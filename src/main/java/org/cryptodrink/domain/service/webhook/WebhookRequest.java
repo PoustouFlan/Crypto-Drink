@@ -14,6 +14,7 @@ public class WebhookRequest {
     @Data
     public static class Embed {
         private String title;
+        private Integer color;
         private String description;
         private List<Field> fields;
         private String timestamp;

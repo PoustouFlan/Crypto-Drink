@@ -8,6 +8,7 @@ import org.cryptodrink.domain.entity.WebhookEntity;
 import org.cryptodrink.domain.service.ConfigService;
 import org.cryptodrink.domain.service.ScoreboardService;
 import org.cryptodrink.domain.service.UserService;
+import org.cryptodrink.utils.I18nUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,15 +53,16 @@ public class WebhookService {
             payload.setContent("Nouveau flag !");
             WebhookRequest.Embed embed = new WebhookRequest.Embed();
             embed.setTitle("Flagger");
+            embed.setColor(16711680);
             embed.setDescription(String.format(
                     """
                         :flag_fr: %s
-                        :star: %d\t:triangular_flag_on_post: TODO
+                        :star: %d\t:triangular_flag_on_post: %d
                         Niveau : %d
                         Rang : %d / %d
                     """,
                     user.getUsername(),
-                    user.getScore(),
+                    user.getScore(), userService.getSolvedChallenges(user).size(),
                     user.getLevel(),
                     user.getRank(), configService.getTotalUser()
             ));
@@ -71,11 +73,11 @@ public class WebhookService {
                     """
                         %s
                         :star: %d\t:triangular_flag_on_post: %d
-                        %de :triangular_flag_on_post: du scoreboard
+                        %s :triangular_flag_on_post: du scoreboard
                     """,
                     challenge.getName(),
                     challenge.getPoints(), challenge.getSolves(),
-                    scoreboardService.countSolvers(scoreboard, challenge)
+                    I18nUtils.toOrdinal(scoreboardService.countSolvers(scoreboard, challenge))
             ));
             field.setInline(false);
 
