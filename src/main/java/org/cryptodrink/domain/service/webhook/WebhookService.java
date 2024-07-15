@@ -38,12 +38,12 @@ public class WebhookService {
         {
             for (WebhookEntity webhook : scoreboardService.getWebhooks(scoreboard))
             {
-                sendNotification(webhook.getUrl(), user, challenge);
+                sendNotification(webhook.getUrl(), scoreboard, user, challenge);
             }
         }
     }
 
-    private void sendNotification(String url, UserEntity user, ChallengeEntity challenge)
+    private void sendNotification(String url, ScoreboardEntity scoreboard, UserEntity user, ChallengeEntity challenge)
     {
         HttpClient client = HttpClient.newHttpClient();
         ObjectMapper mapper = new ObjectMapper();
@@ -71,10 +71,11 @@ public class WebhookService {
                     """
                         %s
                         :star: %d\t:triangular_flag_on_post: %d
-                        TODOe :triangular_flag_on_post: du scoreboard
+                        %de :triangular_flag_on_post: du scoreboard
                     """,
                     challenge.getName(),
-                    challenge.getPoints(), challenge.getSolves()
+                    challenge.getPoints(), challenge.getSolves(),
+                    scoreboardService.countSolvers(scoreboard, challenge)
             ));
             field.setInline(false);
 

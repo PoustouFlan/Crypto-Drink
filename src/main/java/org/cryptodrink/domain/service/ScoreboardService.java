@@ -8,6 +8,7 @@ import org.cryptodrink.data.model.WebhookModel;
 import org.cryptodrink.data.repository.ScoreboardRepository;
 import org.cryptodrink.data.repository.UserRepository;
 import org.cryptodrink.data.repository.WebhookRepository;
+import org.cryptodrink.domain.entity.ChallengeEntity;
 import org.cryptodrink.domain.entity.ScoreboardEntity;
 import org.cryptodrink.domain.entity.UserEntity;
 import org.cryptodrink.domain.entity.WebhookEntity;
@@ -30,6 +31,17 @@ public class ScoreboardService {
     WebhookConverter webhookConverter;
     @Inject
     UserRepository users;
+    @Inject
+    UserService userService;
+
+    public Long countSolvers(ScoreboardEntity scoreboard, ChallengeEntity challenge)
+    {
+        return scoreboard.getUsers().stream().filter(
+               user -> userService.getSolvedChallenges(user).stream().anyMatch(
+                       c -> c.getChallenge().getId().equals(challenge.getId())
+               )
+        ).count();
+    }
 
     public Optional<ScoreboardEntity> find(String name)
     {

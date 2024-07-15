@@ -140,13 +140,39 @@ public class CryptoHackAPI {
             newSolved.add(solvedChallenge);
         }
 
+        // Check that no challenge disappeared from the solved challenge of the user
+        // If a challenge disappeared, this may mean the challenge has been renamed.
+        // In that case, announces are silenced.
+        boolean anyChallengeLost = false;
+        for (SolvedChallengeModel solved : solvedChallenges)
+        {
+            if (newSolved.stream().noneMatch(s -> s.getChallenge().getId().equals(solved.getChallenge().getId()))) {
+                logger.warn("User {} unsolved challenge {}/{}",
+                        userInfo.getUsername(),
+                        solved.getChallenge().getCategory(), solved.getChallenge().getName());
+                anyChallengeLost = true;
+            }
+        }
+
+        List<SolvedChallengeModel> toAnnounce = new ArrayList<>();
         for (SolvedChallengeModel solved : newSolved) {
-            if (solvedChallenges.stream().noneMatch(s -> s.getChallenge().getId().equals(solved.getChallenge().getId())))
-                webhookService.announce(userConverter.convert(user), challengeConverter.convert(solved.getChallenge()));
+            if (solvedChallenges.stream().noneMatch(s -> s.getChallenge().getId().equals(solved.getChallenge().getId()))) {
+                if (!anyChallengeLost)
+                    toAnnounce.add(solved);
+                else
+                    logger.warn("User {} solve for challenge {}/{} silenced",
+                            userInfo.getUsername(),
+                            solved.getChallenge().getCategory(), solved.getChallenge().getName());
+            }
         }
 
         solvedChallenges.clear();
         solvedChallenges.addAll(newSolved);
         users.persist(user);
+
+        toAnnounce.forEach(solved -> webhookService.announce(
+                userConverter.convert(user),
+                challengeConverter.convert(solved.getChallenge())
+        ));
     }
 }
