@@ -1,0 +1,81 @@
+/* UserInfo.css */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.user-title {
+    font-size: 36px;
+    color: #ff5252;
+}
+
+.user-details {
+    margin: 20px 0;
+    font-size: 18px;
+}
+
+.user-details b {
+    color: #ff5252;
+}
+
+.user-level {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #333333;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.user-level p {
+    margin: 5px 0;
+}
+
+.user-level i {
+    margin-right: 5px;
+}
+
+.recent-solves {
+    width: 100%;
+}
+
+.recent-solves table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recent-solves th, .recent-solves td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #333333;
+}
+
+.recent-solves th {
+    background-color: #333333;
+}
+
+.recent-solves td {
+    background-color: #1a1a1a;
+}
+
+.gold-text {
+    color: #ffd700;
+}
+
+.red-text {
+    color: #ff5252;
+}
+
+.green-text {
+    color: #00e676;
+}
+
+.cyan-text {
+    color: #00bcd4;
+}

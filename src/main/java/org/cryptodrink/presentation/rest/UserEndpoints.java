@@ -33,13 +33,6 @@ public class UserEndpoints {
     }
 
     @Path("/{username}")
-    @POST
-    public Response postUser(@PathParam("username") String username)
-    {
-        return getUser(username);
-    }
-
-    @Path("/{username}")
     @PUT
     public Response updateUser(@PathParam("username") String username) {
         Optional<UserEntity> user = userService.find(username, false, true);

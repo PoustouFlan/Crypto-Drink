@@ -37,4 +37,11 @@ public class ChallengeEndpoints {
         ChallengeResponse response = challengeConverter.convert(challenge.get());
         return Response.ok().entity(response).build();
     }
+
+    @Path("/")
+    @POST
+    public Response getChallengePost(ChallengeRequest request)
+    {
+        return getChallenge(request);
+    }
 }
