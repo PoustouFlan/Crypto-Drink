@@ -1,7 +1,7 @@
 // App.js
 import React from 'react';
 import {BrowserRouter as Router, Route, Routes, useParams} from 'react-router-dom';
-import UserInfo from './UserInfo';
+import UserInfo from './user/info';
 
 const App = () => {
     return (

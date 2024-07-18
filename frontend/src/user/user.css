@@ -1,4 +1,11 @@
-/* UserInfo.css */
+html, body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif; /* You can set the desired font-family */
+}
+
 .container {
     display: flex;
     flex-direction: column;
@@ -43,6 +50,11 @@
 
 .recent-solves {
     width: 100%;
+    color: #ffffff; /* Ensure all text in recent-solves is white */
+}
+
+.recent-solves h3 {
+    color: #ffffff; /* Ensure the "Solved Challenges" text is white */
 }
 
 .recent-solves table {
@@ -58,10 +70,12 @@
 
 .recent-solves th {
     background-color: #333333;
+    color: #ffffff; /* Ensure header text is white */
 }
 
 .recent-solves td {
     background-color: #1a1a1a;
+    color: #ffffff; /* Ensure body text is white */
 }
 
 .gold-text {
