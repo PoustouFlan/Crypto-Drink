@@ -55,6 +55,16 @@ public class ScoreboardService {
     }
 
     @Transactional
+    public Optional<ScoreboardEntity> findAndDelete(String name) {
+        Optional<ScoreboardModel> model = scoreboards.find("LOWER(name)", name.toLowerCase())
+                .firstResultOptional();
+        if (model.isEmpty())
+            return Optional.empty();
+        scoreboards.deleteById(model.get().getId());
+        return Optional.of(scoreboardConverter.convert(model.get()));
+    }
+
+    @Transactional
     public Optional<ScoreboardEntity> create(String name)
     {
         ScoreboardModel model = new ScoreboardModel();

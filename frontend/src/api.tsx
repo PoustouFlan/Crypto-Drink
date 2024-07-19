@@ -1,3 +1,4 @@
+// api.tsx
 import axios from 'axios';
 
 // Cache objects
@@ -75,6 +76,17 @@ export const createScoreboard = async (name: string) => {
         // Clear the cache for scoreboards after creation
         scoreboardCache.clear();
         return response.data;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};
+
+// New method to delete a scoreboard
+export const deleteScoreboard = async (name: string) => {
+    try {
+        await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/scoreboard/${name}`);
+        // Clear the cache for scoreboards after deletion
+        scoreboardCache.clear();
     } catch (err) {
         throw new Error(err.message);
     }

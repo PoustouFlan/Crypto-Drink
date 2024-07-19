@@ -48,6 +48,16 @@ public class ScoreboardEndpoints {
         return Response.ok().entity(response).build();
     }
 
+    @Path("/{name}")
+    @DELETE
+    public Response deleteScoreboard(@PathParam("name") String name) {
+        Optional<ScoreboardEntity> scoreboard = scoreboardService.findAndDelete(name);
+        if (scoreboard.isEmpty())
+            return Response.status(Response.Status.NOT_FOUND).entity("scoreboard not found").build();
+        ScoreboardResponse response = scoreboardConverter.convert(scoreboard.get());
+        return Response.ok().entity(response).build();
+    }
+
     @Path("/")
     @GET
     public Response getAllScoreboards() {
