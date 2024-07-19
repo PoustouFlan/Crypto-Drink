@@ -6,11 +6,12 @@ import {
     fetchChallengeDetails,
     fetchScoreboardDetails,
     fetchUserData,
+    refreshUserData,
     registerUserToScoreboard
 } from '../api';
 import './info.css';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFlag, faStar, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faFlag, faStar, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import TopPlayersGraph from './graph'; // Import the TopPlayersGraph component
 import RegisterUser from './register'; // Import the RegisterUser component
 
@@ -103,6 +104,44 @@ const ScoreboardInfo: React.FC = () => {
         }
     };
 
+    // Function to handle refreshing all users with PUT request
+    const handleRefreshUsers = async () => {
+        setUsers(prevUsers => prevUsers.map(user => ({...user, loading: true})));
+
+        for (const user of users) {
+            try {
+                const refreshedUserData = await refreshUserData(user.username);
+                const solvedChallenges = [];
+
+                for (const challenge of refreshedUserData.solved_challenges) {
+                    const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
+                    solvedChallenges.push({
+                        date: challenge.date,
+                        points: challengeDetails.points,
+                    });
+                }
+
+                setUsers((prevUsers) => {
+                    const updatedUsers = prevUsers.map((u) => {
+                        if (u.username === user.username) {
+                            return {
+                                username: refreshedUserData.username,
+                                score: refreshedUserData.score,
+                                solvedChallengesCount: refreshedUserData.solved_challenges.length,
+                                solvedChallenges,
+                                loading: false,
+                            };
+                        }
+                        return u;
+                    });
+                    return [...updatedUsers];
+                });
+            } catch (err) {
+                console.error(`Failed to refresh data for user ${user.username}:`, err);
+            }
+        }
+    };
+
     // Sort users: loaded users first, by score descending
     const sortedUsers = users.sort((a, b) => {
         if (a.loading && !b.loading) return 1;
@@ -117,6 +156,9 @@ const ScoreboardInfo: React.FC = () => {
     return (
         <div className="scoreboard-details-container">
             <h1>{name} Scoreboard</h1>
+            <button onClick={handleRefreshUsers} className="refresh-button">
+                <FontAwesomeIcon icon={faSync}/> Refresh All Users
+            </button>
             <RegisterUser onRegister={handleRegisterUser}/> {/* Pass the register handler */}
             <table className="scoreboard-table">
                 <thead>
