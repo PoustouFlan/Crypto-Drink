@@ -1,14 +1,17 @@
+// scoreboard/ScoreboardInfo.tsx
 import React, {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
-import {fetchScoreboardDetails, fetchUserData} from '../api';
+import {fetchChallengeDetails, fetchScoreboardDetails, fetchUserData} from '../api';
 import './info.css';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFlag, faStar} from "@fortawesome/free-solid-svg-icons";
+import TopPlayersGraph from './graph'; // Import the TopPlayersGraph component
 
 interface User {
     username: string;
     score?: number;
     solvedChallengesCount?: number;
+    solvedChallenges?: { date: string; points: number }[]; // Add solvedChallenges for graph
     loading: boolean;
 }
 
@@ -28,26 +31,42 @@ const ScoreboardInfo: React.FC = () => {
                 }));
 
                 setUsers(initialUsers);
+                setLoading(false);
 
                 // Fetch user data for each user
-                initialUsers.forEach(async (user) => {
+                for (const user of initialUsers) {
                     try {
                         const userData = await fetchUserData(user.username);
-                        setUsers((prevUsers) => [
-                            ...prevUsers.filter((u) => u.username !== user.username),
-                            {
-                                username: userData.username,
-                                score: userData.score,
-                                solvedChallengesCount: userData.solved_challenges.length,
-                                loading: false,
-                            },
-                        ]);
+                        const solvedChallenges = [];
+
+                        for (const challenge of userData.solved_challenges) {
+                            const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
+                            solvedChallenges.push({
+                                date: challenge.date,
+                                points: challengeDetails.points,
+                            });
+                        }
+
+                        setUsers((prevUsers) => {
+                            const updatedUsers = prevUsers.map((u) => {
+                                if (u.username === user.username) {
+                                    return {
+                                        username: userData.username,
+                                        score: userData.score,
+                                        solvedChallengesCount: userData.solved_challenges.length,
+                                        solvedChallenges,
+                                        loading: false,
+                                    };
+                                }
+                                return u;
+                            });
+                            return [...updatedUsers];
+                        });
                     } catch (err) {
                         console.error(`Failed to fetch data for user ${user.username}:`, err);
                     }
-                });
+                }
 
-                setLoading(false);
             } catch (err) {
                 setError(err as Error);
                 setLoading(false);
@@ -87,14 +106,15 @@ const ScoreboardInfo: React.FC = () => {
                         </td>
                         <td><span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
                             {user.loading ? 'Loading...' : user.score}
-                        </span></td>
+                            </span></td>
                         <td><span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
                             {user.loading ? 'Loading...' : user.solvedChallengesCount}
-                        </span></td>
+                            </span></td>
                     </tr>
                 ))}
                 </tbody>
             </table>
+            <TopPlayersGraph users={sortedUsers.slice(0, 10)}/> {/* Add the TopPlayersGraph component */}
         </div>
     );
 };

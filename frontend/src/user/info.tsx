@@ -130,7 +130,7 @@ const UserInfo: React.FC<UserInfoProps> = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {user?.solved_challenges.map((challenge, index) => (
+                    {user?.solved_challenges?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((challenge, index) => (
                         <tr key={index}>
                             <td>{challenge.date}</td>
                             <td>{challenge.category}</td>

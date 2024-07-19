@@ -16,6 +16,7 @@
 .scoreboard-table {
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 20px;
 }
 
 .scoreboard-table th,
@@ -35,4 +36,16 @@
 
 .scoreboard-table td.loading {
     color: #ff5252;
+}
+
+.top-players-graph {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px;
+}
+
+.top-players-graph h2 {
+    font-size: 24px;
+    color: #ff5252;
+    margin-bottom: 10px;
 }
