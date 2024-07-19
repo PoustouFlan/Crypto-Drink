@@ -6,6 +6,7 @@ const userCache = new Map();
 const challengeCache = new Map();
 const scoreboardCache = new Map();
 const scoreboardDetailsCache = new Map();
+const categoryCache = new Map();
 
 export const fetchUserData = async (username: string) => {
     if (userCache.has(username)) {
@@ -130,8 +131,39 @@ export const refreshUserData = async (username: string) => {
 // New method to register a webhook to a scoreboard
 export const registerWebhookToScoreboard = async (scoreboardName: string, url: string) => {
     try {
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/scoreboard/${scoreboardName}/webhook`, {url});
+        const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/scoreboard/${scoreboardName}/webhook`, {url});
         return response.data;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};
+
+// New methods to fetch categories and challenges by category
+export const fetchCategories = async () => {
+    if (categoryCache.has('categories')) {
+        return categoryCache.get('categories');
+    }
+
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/category`);
+        const data = response.data;
+        categoryCache.set('categories', data);
+        return data;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};
+
+export const fetchChallengesByCategory = async (name: string) => {
+    if (categoryCache.has(name)) {
+        return categoryCache.get(name);
+    }
+
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/category`, {name});
+        const data = response.data;
+        categoryCache.set(name, data);
+        return data;
     } catch (err) {
         throw new Error(err.message);
     }

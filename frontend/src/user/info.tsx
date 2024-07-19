@@ -6,7 +6,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar, faSyncAlt, faTint} from '@fortawesome/free-solid-svg-icons';
 import {fetchChallengeDetails, fetchUserData, refreshUserData} from '../api';
 import ScoreGraph from './graph';
-import {useParams} from "react-router-dom"; // Import the ScoreGraph component
+import {Link, useParams} from "react-router-dom"; // Import the ScoreGraph component
 
 interface UserInfoProps {
     username: string;
@@ -33,6 +33,7 @@ interface User {
 
 const UserInfo: React.FC<UserInfoProps> = () => {
     const {username} = useParams<{ username: string }>();
+    const {name} = useParams<{ name: string }>();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -143,7 +144,10 @@ const UserInfo: React.FC<UserInfoProps> = () => {
                     {user?.solved_challenges?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((challenge, index) => (
                         <tr key={index}>
                             <td>{challenge.date}</td>
-                            <td>{challenge.category}</td>
+                            <td>
+                                <Link to={name == null ? `/category/${encodeURIComponent(challenge.category)}`
+                                    : `/scoreboard/${name}/category/${encodeURIComponent(challenge.category)}`}>{challenge.category}</Link>
+                            </td>
                             <td>{challenge.name}</td>
                             <td>
                                 {challenge.loadingPoints ? (

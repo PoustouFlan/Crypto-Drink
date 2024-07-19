@@ -180,7 +180,8 @@ const ScoreboardInfo: React.FC = () => {
                 {sortedUsers.map((user, index) => (
                     <tr key={index}>
                         <td>
-                            <Link to={`/user/${user.username}`} className={"user-link"}>{user.username}</Link>
+                            <Link to={`/scoreboard/${name}/user/${user.username}`}
+                                  className={"user-link"}>{user.username}</Link>
                         </td>
                         <td><span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
                             {user.loading ? 'Loading...' : user.score}
