@@ -5,10 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ChallengeEntity {
+public class CategoryEntity {
     private Long id;
-    private CategoryEntity category;
     private String name;
-    private Integer points;
-    private Integer solves;
 }

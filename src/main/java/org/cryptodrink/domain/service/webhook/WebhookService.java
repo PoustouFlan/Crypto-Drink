@@ -68,7 +68,7 @@ public class WebhookService {
             ));
 
             WebhookRequest.Embed.Field field = new WebhookRequest.Embed.Field();
-            field.setName(challenge.getCategory());
+            field.setName(challenge.getCategory().getName());
             field.setValue(String.format(
                     """
                         %s

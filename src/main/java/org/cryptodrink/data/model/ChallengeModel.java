@@ -14,10 +14,13 @@ public class ChallengeModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String category;
     private String name;
     private Integer points;
     private Integer solves;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private CategoryModel category;
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SolvedChallengeModel> solvedChallenges = new ArrayList<>();

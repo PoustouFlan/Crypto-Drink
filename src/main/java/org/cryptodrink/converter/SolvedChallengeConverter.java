@@ -29,7 +29,7 @@ public class SolvedChallengeConverter {
     {
         return new SolvedChallengeResponse(
                 solved.getDate().toString(), // TODO format
-                solved.getChallenge().getCategory(),
+                solved.getChallenge().getCategory().getName(),
                 solved.getChallenge().getName()
         );
     }

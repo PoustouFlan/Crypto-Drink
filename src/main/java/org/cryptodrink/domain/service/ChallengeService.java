@@ -20,11 +20,13 @@ public class ChallengeService {
     ChallengeConverter challengeConverter;
     @Inject
     SolvedChallengeConverter solvedChallengeConverter;
+    @Inject
+    CategoryService categoryService;
 
     public Optional<ChallengeEntity> find(String category, String name)
     {
         return challenges
-                .find("category = ?1 AND name = ?2", category, name)
+                .find("category.name = ?1 AND name = ?2", category, name)
                 .firstResultOptional()
                 .map(challengeConverter::convert);
     }

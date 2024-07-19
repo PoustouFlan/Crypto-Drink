@@ -1,10 +1,10 @@
 package org.cryptodrink.data.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
-import org.cryptodrink.data.model.ChallengeModel;
+import org.cryptodrink.data.model.CategoryModel;
 
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class ChallengeRepository implements PanacheRepository<ChallengeModel> {
+public class CategoryRepository implements PanacheRepository<CategoryModel> {
 }

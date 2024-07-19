@@ -18,11 +18,14 @@ public class ChallengeConverter {
     @Inject
     SolvedChallengeConverter solvedChallengeConverter;
 
+    @Inject
+    CategoryConverter categoryConverter;
+
     public ChallengeEntity convert(ChallengeModel challenge)
     {
         return new ChallengeEntity(
                 challenge.getId(),
-                challenge.getCategory(),
+                categoryConverter.convert(challenge.getCategory()),
                 challenge.getName(),
                 challenge.getPoints(),
                 challenge.getSolves()
@@ -33,7 +36,7 @@ public class ChallengeConverter {
     {
         List<SolvedChallengeEntity> flaggers = challengeService.getFlaggers(challenge);
         return new ChallengeResponse(
-                challenge.getCategory(),
+                challenge.getCategory().getName(),
                 challenge.getName(),
                 challenge.getPoints(),
                 challenge.getSolves(),

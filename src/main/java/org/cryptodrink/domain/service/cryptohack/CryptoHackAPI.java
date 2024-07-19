@@ -5,11 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cryptodrink.converter.ChallengeConverter;
 import org.cryptodrink.converter.UserConverter;
+import org.cryptodrink.data.model.CategoryModel;
 import org.cryptodrink.data.model.ChallengeModel;
 import org.cryptodrink.data.model.SolvedChallengeModel;
 import org.cryptodrink.data.model.UserModel;
+import org.cryptodrink.data.repository.CategoryRepository;
 import org.cryptodrink.data.repository.ChallengeRepository;
-import org.cryptodrink.data.repository.ConfigRepository;
 import org.cryptodrink.data.repository.UserRepository;
 import org.cryptodrink.domain.service.ConfigService;
 import org.cryptodrink.domain.service.webhook.WebhookService;
@@ -52,6 +53,9 @@ public class CryptoHackAPI {
 
     @Inject
     ConfigService configService;
+
+    @Inject
+    CategoryRepository categories;
 
     public Optional<CryptoHackResponse> getUserInfo(String username)
     {
@@ -125,9 +129,14 @@ public class CryptoHackAPI {
 
         for (CryptoHackResponse.SolvedChallenge solved : userInfo.getSolvedChallenges())
         {
-            ChallengeModel challenge = challenges.find("name = ?1 AND category = ?2", solved.getName(), solved.getCategory())
+            CategoryModel category = categories.find("name", solved.getCategory())
+                    .firstResultOptional().orElse(new CategoryModel());
+            category.setName(solved.getCategory());
+            categories.persist(category);
+
+            ChallengeModel challenge = challenges.find("name = ?1 AND category.id = ?2", solved.getName(), category.getId())
                     .firstResultOptional().orElse(new ChallengeModel());
-            challenge.setCategory(solved.getCategory());
+            challenge.setCategory(category);
             challenge.setName(solved.getName());
             challenge.setPoints(solved.getPoints());
             challenge.setSolves(solved.getSolves());
