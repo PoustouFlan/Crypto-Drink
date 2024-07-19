@@ -94,7 +94,7 @@ const TopPlayersGraph: React.FC<TopPlayersGraphProps> = ({users}) => {
             data: cumulativeScores[index]?.map((cs: any) => cs.score) || [],
             borderColor: `hsl(${index * 36}, 70%, 50%)`,
             backgroundColor: `hsla(${index * 36}, 70%, 50%, 0.2)`,
-            fill: true,
+            fill: false,
         })),
     };
 
