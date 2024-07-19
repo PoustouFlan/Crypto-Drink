@@ -106,39 +106,44 @@ const ScoreboardInfo: React.FC = () => {
 
     // Function to handle refreshing all users with PUT request
     const handleRefreshUsers = async () => {
+        // Set all users to loading
         setUsers(prevUsers => prevUsers.map(user => ({...user, loading: true})));
 
-        for (const user of users) {
-            try {
-                const refreshedUserData = await refreshUserData(user.username);
-                const solvedChallenges = [];
+        try {
+            // Use Promise.all to handle multiple promises in parallel
+            await Promise.all(users.map(async (user) => {
+                try {
+                    const refreshedUserData = await refreshUserData(user.username);
+                    const solvedChallenges = await Promise.all(refreshedUserData.solved_challenges.map(async (challenge) => {
+                        const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
+                        return {
+                            date: challenge.date,
+                            points: challengeDetails.points,
+                        };
+                    }));
 
-                for (const challenge of refreshedUserData.solved_challenges) {
-                    const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
-                    solvedChallenges.push({
-                        date: challenge.date,
-                        points: challengeDetails.points,
-                    });
-                }
-
-                setUsers((prevUsers) => {
-                    const updatedUsers = prevUsers.map((u) => {
-                        if (u.username === user.username) {
-                            return {
+                    setUsers(prevUsers => prevUsers.map(u =>
+                        u.username === user.username
+                            ? {
                                 username: refreshedUserData.username,
                                 score: refreshedUserData.score,
                                 solvedChallengesCount: refreshedUserData.solved_challenges.length,
                                 solvedChallenges,
-                                loading: false,
-                            };
-                        }
-                        return u;
-                    });
-                    return [...updatedUsers];
-                });
-            } catch (err) {
-                console.error(`Failed to refresh data for user ${user.username}:`, err);
-            }
+                                loading: false
+                            }
+                            : u
+                    ));
+                } catch (err) {
+                    console.error(`Failed to refresh data for user ${user.username}:`, err);
+                    setUsers(prevUsers => prevUsers.map(u =>
+                        u.username === user.username
+                            ? {...u, loading: false} // Mark as not loading even if there was an error
+                            : u
+                    ));
+                }
+            }));
+        } catch (err) {
+            console.error('Failed to refresh users:', err);
         }
     };
 
