@@ -1,4 +1,4 @@
-// scoreboard/ScoreboardList.tsx
+// scoreboard/list.tsx
 import React from 'react';
 import {Link} from 'react-router-dom';
 import './list.css';

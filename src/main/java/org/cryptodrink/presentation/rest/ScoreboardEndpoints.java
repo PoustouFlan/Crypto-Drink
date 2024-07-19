@@ -80,7 +80,7 @@ public class ScoreboardEndpoints {
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
-    @Path("/{name}/subscribe")
+    @Path("/{name}/register")
     @POST
     public Response subscribeToScoreboard(@PathParam("name") String name, ScoreboardSubscribeRequest request)
     {

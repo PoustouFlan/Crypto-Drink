@@ -1,11 +1,12 @@
-// scoreboard/ScoreboardInfo.tsx
-import React, {useEffect, useState} from 'react';
+// scoreboard/info.tsx
+import React, {useCallback, useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
-import {fetchChallengeDetails, fetchScoreboardDetails, fetchUserData} from '../api';
+import {fetchChallengeDetails, fetchScoreboardDetails, fetchUserData, registerUserToScoreboard} from '../api';
 import './info.css';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFlag, faStar} from "@fortawesome/free-solid-svg-icons";
 import TopPlayersGraph from './graph'; // Import the TopPlayersGraph component
+import RegisterUser from './register'; // Import the RegisterUser component
 
 interface User {
     username: string;
@@ -21,60 +22,71 @@ const ScoreboardInfo: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const scoreboardInfo = await fetchScoreboardDetails(name);
-                const initialUsers = scoreboardInfo.users.map((username: string) => ({
-                    username,
-                    loading: true,
-                }));
+    // Function to fetch the scoreboard details and user data
+    const fetchData = useCallback(async () => {
+        try {
+            const scoreboardInfo = await fetchScoreboardDetails(name);
+            const initialUsers = scoreboardInfo.users.map((username: string) => ({
+                username,
+                loading: true,
+            }));
 
-                setUsers(initialUsers);
-                setLoading(false);
+            setUsers(initialUsers);
+            setLoading(false);
 
-                // Fetch user data for each user
-                for (const user of initialUsers) {
-                    try {
-                        const userData = await fetchUserData(user.username);
-                        const solvedChallenges = [];
+            // Fetch user data for each user
+            for (const user of initialUsers) {
+                try {
+                    const userData = await fetchUserData(user.username);
+                    const solvedChallenges = [];
 
-                        for (const challenge of userData.solved_challenges) {
-                            const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
-                            solvedChallenges.push({
-                                date: challenge.date,
-                                points: challengeDetails.points,
-                            });
-                        }
-
-                        setUsers((prevUsers) => {
-                            const updatedUsers = prevUsers.map((u) => {
-                                if (u.username === user.username) {
-                                    return {
-                                        username: userData.username,
-                                        score: userData.score,
-                                        solvedChallengesCount: userData.solved_challenges.length,
-                                        solvedChallenges,
-                                        loading: false,
-                                    };
-                                }
-                                return u;
-                            });
-                            return [...updatedUsers];
+                    for (const challenge of userData.solved_challenges) {
+                        const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
+                        solvedChallenges.push({
+                            date: challenge.date,
+                            points: challengeDetails.points,
                         });
-                    } catch (err) {
-                        console.error(`Failed to fetch data for user ${user.username}:`, err);
                     }
+
+                    setUsers((prevUsers) => {
+                        const updatedUsers = prevUsers.map((u) => {
+                            if (u.username === user.username) {
+                                return {
+                                    username: userData.username,
+                                    score: userData.score,
+                                    solvedChallengesCount: userData.solved_challenges.length,
+                                    solvedChallenges,
+                                    loading: false,
+                                };
+                            }
+                            return u;
+                        });
+                        return [...updatedUsers];
+                    });
+                } catch (err) {
+                    console.error(`Failed to fetch data for user ${user.username}:`, err);
                 }
-
-            } catch (err) {
-                setError(err as Error);
-                setLoading(false);
             }
-        };
 
-        fetchData();
+        } catch (err) {
+            setError(err as Error);
+            setLoading(false);
+        }
     }, [name]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    // Function to handle user registration and refresh user list
+    const handleRegisterUser = async (username: string) => {
+        try {
+            await registerUserToScoreboard(name, username);
+            await fetchData(); // Refresh the user list
+        } catch (err) {
+            setError(err as Error);
+        }
+    };
 
     // Sort users: loaded users first, by score descending
     const sortedUsers = users.sort((a, b) => {
@@ -90,6 +102,7 @@ const ScoreboardInfo: React.FC = () => {
     return (
         <div className="scoreboard-details-container">
             <h1>{name} Scoreboard</h1>
+            <RegisterUser onRegister={handleRegisterUser}/> {/* Pass the register handler */}
             <table className="scoreboard-table">
                 <thead>
                 <tr>

@@ -91,3 +91,14 @@ export const deleteScoreboard = async (name: string) => {
         throw new Error(err.message);
     }
 };
+
+// New method to register a user to a scoreboard
+export const registerUserToScoreboard = async (scoreboardName: string, username: string) => {
+    try {
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/scoreboard/${scoreboardName}/register`, {username});
+        // Clear the cache for scoreboards and scoreboard details after registration
+        scoreboardDetailsCache.delete(scoreboardName);
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};

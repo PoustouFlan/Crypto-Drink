@@ -1,4 +1,4 @@
-// scoreboard/ScoreboardPage.tsx
+// scoreboard/page.tsx
 import React, {useEffect, useState} from 'react';
 import {fetchScoreboards} from '../api';
 import ScoreboardList from './list';
