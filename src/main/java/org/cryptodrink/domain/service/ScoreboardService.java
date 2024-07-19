@@ -86,6 +86,16 @@ public class ScoreboardService {
     }
 
     @Transactional
+    public ScoreboardEntity removeUser(ScoreboardEntity scoreboard, UserEntity user) {
+        if (scoreboard.getUsers().stream().noneMatch(existingUser -> existingUser.getId().equals(user.getId())))
+            return scoreboard;
+        ScoreboardModel scoreboardModel = scoreboards.findById(scoreboard.getId());
+        scoreboardModel.getUsers().removeIf(userModel -> userModel.getId().equals(user.getId()));
+        scoreboards.persist(scoreboardModel);
+        return scoreboardConverter.convert(scoreboardModel);
+    }
+
+    @Transactional
     public ScoreboardEntity addWebhook(ScoreboardEntity scoreboard, String url)
     {
         if (getWebhooks(scoreboard).stream().anyMatch(webhook -> webhook.getUrl().equalsIgnoreCase(url)))

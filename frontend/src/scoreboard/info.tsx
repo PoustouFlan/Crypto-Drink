@@ -1,10 +1,16 @@
 // scoreboard/info.tsx
 import React, {useCallback, useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
-import {fetchChallengeDetails, fetchScoreboardDetails, fetchUserData, registerUserToScoreboard} from '../api';
+import {
+    deleteUserFromScoreboard,
+    fetchChallengeDetails,
+    fetchScoreboardDetails,
+    fetchUserData,
+    registerUserToScoreboard
+} from '../api';
 import './info.css';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFlag, faStar} from "@fortawesome/free-solid-svg-icons";
+import {faFlag, faStar, faTrash} from "@fortawesome/free-solid-svg-icons";
 import TopPlayersGraph from './graph'; // Import the TopPlayersGraph component
 import RegisterUser from './register'; // Import the RegisterUser component
 
@@ -88,6 +94,15 @@ const ScoreboardInfo: React.FC = () => {
         }
     };
 
+    const handleDeleteUser = async (username: string) => {
+        try {
+            await deleteUserFromScoreboard(name, username);
+            setUsers((prevUsers) => prevUsers.filter(user => user.username !== username));
+        } catch (err) {
+            console.error(`Failed to delete user ${username} from scoreboard ${name}:`, err);
+        }
+    };
+
     // Sort users: loaded users first, by score descending
     const sortedUsers = users.sort((a, b) => {
         if (a.loading && !b.loading) return 1;
@@ -109,6 +124,7 @@ const ScoreboardInfo: React.FC = () => {
                     <th>Username</th>
                     <th>Score</th>
                     <th>Solved Challenges</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -123,6 +139,11 @@ const ScoreboardInfo: React.FC = () => {
                         <td><span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
                             {user.loading ? 'Loading...' : user.solvedChallengesCount}
                             </span></td>
+                        <td>
+                            <button onClick={() => handleDeleteUser(user.username)} className="delete-button">
+                                <FontAwesomeIcon icon={faTrash}/>
+                            </button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>

@@ -96,6 +96,21 @@ public class ScoreboardEndpoints {
         return Response.ok(scoreboardConverter.convert(newScoreboard)).build();
     }
 
+    @Path("/{name}/user/{username}")
+    @DELETE
+    public Response removeFromScoreboard(@PathParam("name") String name, @PathParam("username") String username) {
+        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(name);
+        if (scoreboard.isEmpty())
+            return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
+        Optional<UserEntity> user = userService.find(username, true, true);
+        if (user.isEmpty())
+            return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+        ScoreboardEntity newScoreboard = scoreboardService.removeUser(scoreboard.get(), user.get());
+        if (scoreboard.get().equals(newScoreboard))
+            return Response.status(Response.Status.NOT_FOUND).entity("User not in scoreboard").build();
+        return Response.ok(scoreboardConverter.convert(newScoreboard)).build();
+    }
+
     @Path("/{name}/webhook")
     @POST
     public Response addWebhookToScoreboard(@PathParam("name") String name, ScoreboardWebhookRequest request)
