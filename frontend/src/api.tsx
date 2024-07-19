@@ -67,3 +67,15 @@ export const fetchScoreboardDetails = async (name: string) => {
         throw new Error(err.message);
     }
 };
+
+// New method to create a scoreboard
+export const createScoreboard = async (name: string) => {
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/scoreboard`, {name});
+        // Clear the cache for scoreboards after creation
+        scoreboardCache.clear();
+        return response.data;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};
