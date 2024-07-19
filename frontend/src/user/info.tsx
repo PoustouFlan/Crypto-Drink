@@ -37,6 +37,19 @@ const UserInfo: React.FC<UserInfoProps> = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
+    const fetchChallengeDetailsForUser = async (solvedChallenges: SolvedChallenge[]) => {
+        const updatedChallenges = await Promise.all(solvedChallenges.map(async (challenge) => {
+            try {
+                const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
+                return {...challenge, points: challengeDetails.points, loadingPoints: false};
+            } catch (err) {
+                console.error(`Failed to fetch details for challenge ${challenge.name}:`, err);
+                return {...challenge, points: 0, loadingPoints: false};
+            }
+        }));
+        return updatedChallenges;
+    };
+
     const fetchData = async () => {
         try {
             const userData = await fetchUserData(username);
@@ -50,44 +63,10 @@ const UserInfo: React.FC<UserInfoProps> = () => {
             setUser({...userData, solved_challenges: initialSolvedChallenges});
             setLoading(false); // Set loading to false as soon as head data is loaded
 
-            // Fetch details for each challenge incrementally
-            userData.solved_challenges.forEach(async (challenge) => {
-                try {
-                    const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
-                    const updatedChallenge = {...challenge, points: challengeDetails.points, loadingPoints: false};
+            // Fetch details for each challenge
+            const updatedSolvedChallenges = await fetchChallengeDetailsForUser(userData.solved_challenges);
+            setUser(prevUser => prevUser ? {...prevUser, solved_challenges: updatedSolvedChallenges} : prevUser);
 
-                    // Update user state for the current challenge
-                    setUser(prevUser => {
-                        if (!prevUser) return prevUser; // Just to satisfy TypeScript, though it should never be null here
-
-                        const updatedSolvedChallenges = prevUser.solved_challenges.map(sc => {
-                            if (sc.name === updatedChallenge.name && sc.category === updatedChallenge.category) {
-                                return updatedChallenge;
-                            }
-                            return sc;
-                        });
-
-                        return {...prevUser, solved_challenges: updatedSolvedChallenges};
-                    });
-                } catch (err) {
-                    console.error(`Failed to fetch details for challenge ${challenge.name}:`, err);
-                    const updatedChallenge = {...challenge, points: 0, loadingPoints: false}; // Default points in case of error
-
-                    // Update user state for the current challenge
-                    setUser(prevUser => {
-                        if (!prevUser) return prevUser; // Just to satisfy TypeScript, though it should never be null here
-
-                        const updatedSolvedChallenges = prevUser.solved_challenges.map(sc => {
-                            if (sc.name === updatedChallenge.name && sc.category === updatedChallenge.category) {
-                                return updatedChallenge;
-                            }
-                            return sc;
-                        });
-
-                        return {...prevUser, solved_challenges: updatedSolvedChallenges};
-                    });
-                }
-            });
         } catch (err) {
             setError(err as Error);
             setLoading(false);
@@ -102,7 +81,19 @@ const UserInfo: React.FC<UserInfoProps> = () => {
         setLoading(true);
         try {
             const userData = await refreshUserData(username);
-            setUser(userData);
+
+            // Initialize solved challenges with loading state
+            const initialSolvedChallenges = userData.solved_challenges.map(challenge => ({
+                ...challenge,
+                loadingPoints: true // Mark all challenges as loading initially
+            }));
+
+            setUser({...userData, solved_challenges: initialSolvedChallenges});
+
+            // Fetch details for each challenge
+            const updatedSolvedChallenges = await fetchChallengeDetailsForUser(userData.solved_challenges);
+            setUser(prevUser => prevUser ? {...prevUser, solved_challenges: updatedSolvedChallenges} : prevUser);
+
         } catch (err) {
             setError(err as Error);
         } finally {
@@ -159,8 +150,8 @@ const UserInfo: React.FC<UserInfoProps> = () => {
                                     <span>Loading...</span>
                                 ) : (
                                     <span>
-                      <FontAwesomeIcon icon={faStar} className="gold-text"/> {challenge.points}
-                    </span>
+                                            <FontAwesomeIcon icon={faStar} className="gold-text"/> {challenge.points}
+                                        </span>
                                 )}
                             </td>
                         </tr>
