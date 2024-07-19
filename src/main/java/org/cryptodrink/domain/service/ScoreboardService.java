@@ -43,6 +43,10 @@ public class ScoreboardService {
         ).count();
     }
 
+    public List<ScoreboardEntity> getAll() {
+        return scoreboards.listAll().stream().map(scoreboardConverter::convert).toList();
+    }
+
     public Optional<ScoreboardEntity> find(String name)
     {
         return scoreboards.find("LOWER(name)", name.toLowerCase())

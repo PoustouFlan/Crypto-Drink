@@ -13,5 +13,5 @@ public class ScoreboardResponse {
     private String name;
 
     @JsonProperty("users")
-    private List<UserResponse> users;
+    private List<String> users;
 }

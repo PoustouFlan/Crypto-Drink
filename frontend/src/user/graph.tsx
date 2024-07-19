@@ -57,7 +57,7 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({solvedChallenges}) => {
         labels: cumulativeScores.map(cs => cs.date),
         datasets: [
             {
-                label: 'Cumulative Score',
+                label: 'Score',
                 data: cumulativeScores.map(cs => cs.score),
                 borderColor: 'rgba(255, 99, 132, 1)',
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',

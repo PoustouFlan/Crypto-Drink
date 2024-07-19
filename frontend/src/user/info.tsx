@@ -3,7 +3,8 @@ import './user.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar, faTint} from '@fortawesome/free-solid-svg-icons';
 import {fetchChallengeDetails, fetchUserData} from '../api';
-import ScoreGraph from './graph'; // Import the ScoreGraph component
+import ScoreGraph from './graph';
+import {useParams} from "react-router-dom"; // Import the ScoreGraph component
 
 interface UserInfoProps {
     username: string;
@@ -28,7 +29,8 @@ interface User {
     solved_challenges: SolvedChallenge[];
 }
 
-const UserInfo: React.FC<UserInfoProps> = ({username}) => {
+const UserInfo: React.FC<UserInfoProps> = () => {
+    const {username} = useParams<{ username: string }>();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);

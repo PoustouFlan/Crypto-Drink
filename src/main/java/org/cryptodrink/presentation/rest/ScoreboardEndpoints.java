@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -44,6 +45,14 @@ public class ScoreboardEndpoints {
         if (scoreboard.isEmpty())
             return Response.status(Response.Status.NOT_FOUND).entity("scoreboard not found").build();
         ScoreboardResponse response = scoreboardConverter.convert(scoreboard.get());
+        return Response.ok().entity(response).build();
+    }
+
+    @Path("/")
+    @GET
+    public Response getAllScoreboards() {
+        List<ScoreboardEntity> scoreboards = scoreboardService.getAll();
+        List<ScoreboardResponse> response = scoreboards.stream().map(scoreboardConverter::convert).toList();
         return Response.ok().entity(response).build();
     }
 

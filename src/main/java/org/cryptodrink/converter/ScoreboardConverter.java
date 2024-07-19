@@ -2,6 +2,7 @@ package org.cryptodrink.converter;
 
 import org.cryptodrink.data.model.ScoreboardModel;
 import org.cryptodrink.domain.entity.ScoreboardEntity;
+import org.cryptodrink.domain.entity.UserEntity;
 import org.cryptodrink.presentation.rest.response.ScoreboardResponse;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,7 +29,7 @@ public class ScoreboardConverter {
     {
         return new ScoreboardResponse(
                 scoreboard.getName(),
-                scoreboard.getUsers().stream().map(userConverter::convert).toList()
+                scoreboard.getUsers().stream().map(UserEntity::getUsername).toList()
         );
     }
 }
