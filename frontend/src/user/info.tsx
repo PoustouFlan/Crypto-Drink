@@ -148,7 +148,11 @@ const UserInfo: React.FC<UserInfoProps> = () => {
                                 <Link to={name == null ? `/category/${encodeURIComponent(challenge.category)}`
                                     : `/scoreboard/${name}/category/${encodeURIComponent(challenge.category)}`}>{challenge.category}</Link>
                             </td>
-                            <td>{challenge.name}</td>
+                            <td>
+                                <Link
+                                    to={name == null ? `/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`
+                                        : `/scoreboard/${name}/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`}>{challenge.name}</Link>
+                            </td>
                             <td>
                                 {challenge.loadingPoints ? (
                                     <span>Loading...</span>

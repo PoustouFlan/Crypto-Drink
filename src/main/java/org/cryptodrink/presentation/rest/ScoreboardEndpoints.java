@@ -1,14 +1,18 @@
 package org.cryptodrink.presentation.rest;
 
+import org.cryptodrink.converter.ChallengeConverter;
 import org.cryptodrink.converter.ScoreboardConverter;
+import org.cryptodrink.domain.entity.ChallengeEntity;
 import org.cryptodrink.domain.entity.ScoreboardEntity;
 import org.cryptodrink.domain.entity.UserEntity;
+import org.cryptodrink.domain.service.ChallengeService;
 import org.cryptodrink.domain.service.ScoreboardService;
 import org.cryptodrink.domain.service.UserService;
-import org.cryptodrink.domain.service.webhook.WebhookService;
+import org.cryptodrink.presentation.rest.request.ChallengeRequest;
 import org.cryptodrink.presentation.rest.request.ScoreboardCreateRequest;
 import org.cryptodrink.presentation.rest.request.ScoreboardSubscribeRequest;
 import org.cryptodrink.presentation.rest.request.ScoreboardWebhookRequest;
+import org.cryptodrink.presentation.rest.response.ChallengeResponse;
 import org.cryptodrink.presentation.rest.response.ScoreboardResponse;
 
 import javax.inject.Inject;
@@ -33,7 +37,10 @@ public class ScoreboardEndpoints {
     UserService userService;
 
     @Inject
-    WebhookService webhookService;
+    ChallengeService challengeService;
+
+    @Inject
+    ChallengeConverter challengeConverter;
 
     private static final Pattern VALID_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9_.~-]+$");
 
@@ -122,5 +129,28 @@ public class ScoreboardEndpoints {
         if (!changed)
             return Response.status(Response.Status.CONFLICT).entity("Webhook already registered").build();
         return Response.ok(scoreboardConverter.convert(scoreboard.get())).build();
+    }
+
+    @Path("/{scoreboardName}/challenge")
+    @GET
+    public Response getChallengeScoreboard(@PathParam("scoreboardName") String scoreboardName, ChallengeRequest request) {
+        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(scoreboardName);
+        if (scoreboard.isEmpty())
+            return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
+
+        String category = request.getCategory();
+        String name = request.getName();
+
+        Optional<ChallengeEntity> challenge = challengeService.find(category, name);
+        if (challenge.isEmpty())
+            return Response.status(Response.Status.NOT_FOUND).entity("Challenge not found").build();
+        ChallengeResponse response = challengeConverter.convert(challenge.get(), scoreboard.get());
+        return Response.ok().entity(response).build();
+    }
+
+    @Path("/{scoreboardName}/challenge")
+    @POST
+    public Response getChallengeScoreboardPost(@PathParam("scoreboardName") String scoreboardName, ChallengeRequest request) {
+        return getChallengeScoreboard(scoreboardName, request);
     }
 }

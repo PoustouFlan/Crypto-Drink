@@ -168,3 +168,39 @@ export const fetchChallengesByCategory = async (name: string) => {
         throw new Error(err.message);
     }
 };
+
+// New methods to fetch known flaggers for a challenge and a specific scoreboard
+export const fetchChallengeFlaggers = async (name: string, category: string) => {
+    const cacheKey = `${name}-${category}-flaggers`;
+    if (challengeCache.has(cacheKey)) {
+        return challengeCache.get(cacheKey);
+    }
+
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/challenge`, {name, category});
+        const data = response.data;
+        challengeCache.set(cacheKey, data);
+        return data;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};
+
+export const fetchScoreboardChallengeFlaggers = async (scoreboardName: string, name: string, category: string) => {
+    const cacheKey = `${scoreboardName}-${name}-${category}-flaggers`;
+    if (challengeCache.has(cacheKey)) {
+        return challengeCache.get(cacheKey);
+    }
+
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/scoreboard/${scoreboardName}/challenge`, {
+            name,
+            category
+        });
+        const data = response.data;
+        challengeCache.set(cacheKey, data);
+        return data;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};

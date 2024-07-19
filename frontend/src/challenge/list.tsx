@@ -1,6 +1,6 @@
 // pages/ChallengeList.tsx
 import React, {useEffect, useState} from 'react';
-import {useParams} from 'react-router-dom';
+import {Link, useParams} from 'react-router-dom';
 import {fetchChallengesByCategory} from '../api';
 
 interface ChallengeListParams {
@@ -38,7 +38,11 @@ const ChallengeList: React.FC = () => {
             <h1>Challenges in {decodeURIComponent(category)}</h1>
             <ul>
                 {challenges.map((challenge, index) => (
-                    <li key={index}>{challenge}</li>
+                    <li key={index}>
+                        <Link
+                            to={name == null ? `/category/${encodeURIComponent(category)}/${encodeURIComponent(challenge)}`
+                                : `/scoreboard/${name}/category/${encodeURIComponent(category)}/${encodeURIComponent(challenge)}`}>{challenge}</Link>
+                    </li>
                 ))}
             </ul>
         </div>

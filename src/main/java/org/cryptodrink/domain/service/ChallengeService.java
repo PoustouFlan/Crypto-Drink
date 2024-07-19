@@ -5,6 +5,7 @@ import org.cryptodrink.converter.SolvedChallengeConverter;
 import org.cryptodrink.data.model.ChallengeModel;
 import org.cryptodrink.data.repository.ChallengeRepository;
 import org.cryptodrink.domain.entity.ChallengeEntity;
+import org.cryptodrink.domain.entity.ScoreboardEntity;
 import org.cryptodrink.domain.entity.SolvedChallengeEntity;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -35,5 +36,12 @@ public class ChallengeService {
     {
         ChallengeModel model = challenges.findById(challenge.getId());
         return model.getSolvedChallenges().stream().map(solvedChallengeConverter::convert).toList();
+    }
+
+    public List<SolvedChallengeEntity> getFlaggers(ChallengeEntity challenge, ScoreboardEntity scoreboard) {
+        ChallengeModel model = challenges.findById(challenge.getId());
+        return model.getSolvedChallenges().stream()
+                .filter(s -> scoreboard.getUsers().stream().anyMatch(u -> u.getId().equals(s.getUser().getId())))
+                .map(solvedChallengeConverter::convert).toList();
     }
 }
