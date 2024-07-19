@@ -14,6 +14,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFlag, faStar, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import TopPlayersGraph from './graph'; // Import the TopPlayersGraph component
 import RegisterUser from './register'; // Import the RegisterUser component
+import WebhookForm from './webhookForm'; // Import the WebhookForm component
 
 interface User {
     username: string;
@@ -165,6 +166,7 @@ const ScoreboardInfo: React.FC = () => {
                 <FontAwesomeIcon icon={faSync}/> Refresh All Users
             </button>
             <RegisterUser onRegister={handleRegisterUser}/> {/* Pass the register handler */}
+            <WebhookForm scoreboardName={name}/> {/* Add the WebhookForm component */}
             <table className="scoreboard-table">
                 <thead>
                 <tr>

@@ -118,9 +118,9 @@ public class ScoreboardEndpoints {
         Optional<ScoreboardEntity> scoreboard = scoreboardService.find(name);
         if (scoreboard.isEmpty())
             return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
-        ScoreboardEntity newScoreboard = scoreboardService.addWebhook(scoreboard.get(), request.getUrl());
-        if (scoreboard.get().equals(newScoreboard))
+        Boolean changed = scoreboardService.addWebhook(scoreboard.get(), request.getUrl());
+        if (!changed)
             return Response.status(Response.Status.CONFLICT).entity("Webhook already registered").build();
-        return Response.ok(scoreboardConverter.convert(newScoreboard)).build();
+        return Response.ok(scoreboardConverter.convert(scoreboard.get())).build();
     }
 }

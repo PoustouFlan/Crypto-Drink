@@ -96,10 +96,10 @@ public class ScoreboardService {
     }
 
     @Transactional
-    public ScoreboardEntity addWebhook(ScoreboardEntity scoreboard, String url)
+    public Boolean addWebhook(ScoreboardEntity scoreboard, String url)
     {
         if (getWebhooks(scoreboard).stream().anyMatch(webhook -> webhook.getUrl().equalsIgnoreCase(url)))
-            return scoreboard;
+            return false;
         ScoreboardModel scoreboardModel = scoreboards.findById(scoreboard.getId());
         WebhookModel webhook = new WebhookModel();
         webhook.setUrl(url);
@@ -107,7 +107,7 @@ public class ScoreboardService {
         webhooks.persist(webhook);
         scoreboardModel.getWebhooks().add(webhook);
         scoreboards.persist(scoreboardModel);
-        return scoreboardConverter.convert(scoreboardModel);
+        return true;
     }
 
     public List<WebhookEntity> getWebhooks(ScoreboardEntity scoreboard)

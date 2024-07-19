@@ -126,3 +126,13 @@ export const refreshUserData = async (username: string) => {
         throw new Error(err.message);
     }
 };
+
+// New method to register a webhook to a scoreboard
+export const registerWebhookToScoreboard = async (scoreboardName: string, url: string) => {
+    try {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/scoreboard/${scoreboardName}/webhook`, {url});
+        return response.data;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};
