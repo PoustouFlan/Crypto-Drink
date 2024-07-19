@@ -93,3 +93,16 @@ html, body {
 .cyan-text {
     color: #00bcd4;
 }
+
+.refresh-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    margin-left: 10px;
+    color: #555;
+}
+
+.refresh-button:hover {
+    color: #000;
+}

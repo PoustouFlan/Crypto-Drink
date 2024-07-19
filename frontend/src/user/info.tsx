@@ -1,8 +1,10 @@
+// user/info.tsx
+
 import React, {useEffect, useState} from 'react';
 import './user.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faStar, faTint} from '@fortawesome/free-solid-svg-icons';
-import {fetchChallengeDetails, fetchUserData} from '../api';
+import {faStar, faSyncAlt, faTint} from '@fortawesome/free-solid-svg-icons';
+import {fetchChallengeDetails, fetchUserData, refreshUserData} from '../api';
 import ScoreGraph from './graph';
 import {useParams} from "react-router-dom"; // Import the ScoreGraph component
 
@@ -35,73 +37,90 @@ const UserInfo: React.FC<UserInfoProps> = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
+    const fetchData = async () => {
+        try {
+            const userData = await fetchUserData(username);
+
+            // Initialize solved challenges with loading state
+            const initialSolvedChallenges = userData.solved_challenges.map(challenge => ({
+                ...challenge,
+                loadingPoints: true // Mark all challenges as loading initially
+            }));
+
+            setUser({...userData, solved_challenges: initialSolvedChallenges});
+            setLoading(false); // Set loading to false as soon as head data is loaded
+
+            // Fetch details for each challenge incrementally
+            userData.solved_challenges.forEach(async (challenge) => {
+                try {
+                    const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
+                    const updatedChallenge = {...challenge, points: challengeDetails.points, loadingPoints: false};
+
+                    // Update user state for the current challenge
+                    setUser(prevUser => {
+                        if (!prevUser) return prevUser; // Just to satisfy TypeScript, though it should never be null here
+
+                        const updatedSolvedChallenges = prevUser.solved_challenges.map(sc => {
+                            if (sc.name === updatedChallenge.name && sc.category === updatedChallenge.category) {
+                                return updatedChallenge;
+                            }
+                            return sc;
+                        });
+
+                        return {...prevUser, solved_challenges: updatedSolvedChallenges};
+                    });
+                } catch (err) {
+                    console.error(`Failed to fetch details for challenge ${challenge.name}:`, err);
+                    const updatedChallenge = {...challenge, points: 0, loadingPoints: false}; // Default points in case of error
+
+                    // Update user state for the current challenge
+                    setUser(prevUser => {
+                        if (!prevUser) return prevUser; // Just to satisfy TypeScript, though it should never be null here
+
+                        const updatedSolvedChallenges = prevUser.solved_challenges.map(sc => {
+                            if (sc.name === updatedChallenge.name && sc.category === updatedChallenge.category) {
+                                return updatedChallenge;
+                            }
+                            return sc;
+                        });
+
+                        return {...prevUser, solved_challenges: updatedSolvedChallenges};
+                    });
+                }
+            });
+        } catch (err) {
+            setError(err as Error);
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const userData = await fetchUserData(username);
-
-                // Initialize solved challenges with loading state
-                const initialSolvedChallenges = userData.solved_challenges.map(challenge => ({
-                    ...challenge,
-                    loadingPoints: true // Mark all challenges as loading initially
-                }));
-
-                setUser({...userData, solved_challenges: initialSolvedChallenges});
-                setLoading(false); // Set loading to false as soon as head data is loaded
-
-                // Fetch details for each challenge incrementally
-                userData.solved_challenges.forEach(async (challenge) => {
-                    try {
-                        const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
-                        const updatedChallenge = {...challenge, points: challengeDetails.points, loadingPoints: false};
-
-                        // Update user state for the current challenge
-                        setUser(prevUser => {
-                            if (!prevUser) return prevUser; // Just to satisfy TypeScript, though it should never be null here
-
-                            const updatedSolvedChallenges = prevUser.solved_challenges.map(sc => {
-                                if (sc.name === updatedChallenge.name && sc.category === updatedChallenge.category) {
-                                    return updatedChallenge;
-                                }
-                                return sc;
-                            });
-
-                            return {...prevUser, solved_challenges: updatedSolvedChallenges};
-                        });
-                    } catch (err) {
-                        console.error(`Failed to fetch details for challenge ${challenge.name}:`, err);
-                        const updatedChallenge = {...challenge, points: 0, loadingPoints: false}; // Default points in case of error
-
-                        // Update user state for the current challenge
-                        setUser(prevUser => {
-                            if (!prevUser) return prevUser; // Just to satisfy TypeScript, though it should never be null here
-
-                            const updatedSolvedChallenges = prevUser.solved_challenges.map(sc => {
-                                if (sc.name === updatedChallenge.name && sc.category === updatedChallenge.category) {
-                                    return updatedChallenge;
-                                }
-                                return sc;
-                            });
-
-                            return {...prevUser, solved_challenges: updatedSolvedChallenges};
-                        });
-                    }
-                });
-            } catch (err) {
-                setError(err as Error);
-                setLoading(false);
-            }
-        };
-
         fetchData();
     }, [username]);
+
+    const handleRefresh = async () => {
+        setLoading(true);
+        try {
+            const userData = await refreshUserData(username);
+            setUser(userData);
+        } catch (err) {
+            setError(err as Error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
     return (
         <div className="container">
-            <h1 className="user-title">{user?.username}</h1>
+            <h1 className="user-title">
+                {user?.username}
+                <button className="refresh-button" onClick={handleRefresh}>
+                    <FontAwesomeIcon icon={faSyncAlt}/>
+                </button>
+            </h1>
             <div className="user-details">
                 <p>Joined: <b>{user?.joined}</b></p>
                 <p>Rank: <b>#{user?.rank}</b></p>

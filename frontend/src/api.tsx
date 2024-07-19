@@ -1,3 +1,4 @@
+// api.tsx
 import axios from 'axios';
 
 // Cache objects
@@ -108,6 +109,19 @@ export const deleteUserFromScoreboard = async (scoreboardName: string, username:
         await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/scoreboard/${scoreboardName}/user/${username}`);
         // Clear the cache for scoreboard details after user deletion
         scoreboardDetailsCache.delete(scoreboardName);
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};
+
+// New method to refresh user data
+export const refreshUserData = async (username: string) => {
+    try {
+        const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/user/${username}`);
+        const data = response.data;
+        // Update the user cache with the new data
+        userCache.set(username, data);
+        return data;
     } catch (err) {
         throw new Error(err.message);
     }
