@@ -14,9 +14,8 @@ import './info.css';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFlag, faStar, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import TopPlayersGraph from './graph'; // Import the TopPlayersGraph component
-import RegisterUser from './register'; // Import the RegisterUser component
-import WebhookForm from './webhookForm'; // Import the WebhookForm component
 import {ToastContainer} from 'react-toastify';
+import RegisterPopup from './registerPopup';
 
 interface User {
     username: string;
@@ -163,14 +162,17 @@ const ScoreboardInfo: React.FC = () => {
 
     return (
         <div id="scoreboard-details-container">
-            <div id="scoreboard-header">
+            <div className="box-center">
             <h1>{name} Scoreboard</h1>
             <button onClick={handleRefreshUsers} className="refresh-button">
                 <FontAwesomeIcon icon={faSync}/>
             </button>
             </div>
-            <RegisterUser onRegister={handleRegisterUser}/> {/* Pass the register handler */}
-            <WebhookForm scoreboardName={name}/> {/* Add the WebhookForm component */}
+
+            <div className="box-center">
+                <RegisterPopup onRegister={handleRegisterUser}
+                    scoreboardName={name}></RegisterPopup>
+            </div>
             <ToastContainer
                 position="top-right"
                 autoClose={5000}
