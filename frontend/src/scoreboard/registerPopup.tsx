@@ -1,4 +1,4 @@
-import {useState} from "react"
+import {useEffect, useState} from "react"
 
 import RegisterUser from './register'; // Import the RegisterUser component
 import WebhookForm from './webhookForm'; // Import the WebhookForm component
@@ -16,6 +16,17 @@ interface RegisterPopupProps {
 const RegisterPopup: React.FC<RegisterPopupProps> = ({onRegister, scoreboardName}) => {
     const [userTab, setUserTab] = useState<boolean>(true)
     const [seen, setSeen] = useState(false);
+
+    useEffect(() => {
+        function onKeyDown(e: KeyboardEvent) {
+            if (e.which === 27) // Esc key
+                setSeen(false);
+        }
+
+        window.addEventListener("keydown", onKeyDown);
+
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, []);
 
     return (
         <>
