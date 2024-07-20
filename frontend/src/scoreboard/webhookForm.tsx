@@ -41,20 +41,24 @@ const WebhookForm: React.FC<WebhookFormProps> = ({scoreboardName}) => {
     };
 
     return (
+        <>
+        <h2 className="register-title">Register Webhook</h2>
         <form onSubmit={handleSubmit} className="webhook-form">
-            <h2>Register Webhook</h2>
-            <div>
+            <div className="register-form-content">
                 <label htmlFor="webhook-url">Webhook URL:</label>
+                <br />
                 <input
                     type="url"
                     id="webhook-url"
                     value={url}
+                    placeholder='Enter an URL'
                     onChange={(e) => setUrl(e.target.value)}
                     required
                 />
             </div>
             <button type="submit" disabled={loading}>Register Webhook</button>
         </form>
+        </>
     );
 };
 

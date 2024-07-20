@@ -45,21 +45,26 @@ const RegisterUser: React.FC<RegisterUserProps> = ({onRegister}) => {
     };
 
     return (
-        <div className="register-user-container">
-            <h2>Register a New User</h2>
-            <form onSubmit={handleRegister}>
-                <label>
+        <>
+        <h2 className="register-title">Register a New User</h2>
+        <form onSubmit={handleRegister}>
+            <div className="register-form-content">
+                <label htmlFor="username">
                     Username:
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
                 </label>
-                <button type="submit" disabled={loading}>Register</button>
-            </form>
-        </div>
+                <br />
+                <input
+                    id="username"
+                    type="text"
+                    value={username}
+                    placeholder='Enter a username'
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                ></input>
+            </div>
+            <button type="submit" disabled={loading}>Register</button>
+        </form>
+        </>
     );
 };
 

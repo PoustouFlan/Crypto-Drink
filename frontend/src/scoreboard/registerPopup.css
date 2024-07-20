@@ -18,14 +18,13 @@
 
 #register-popup {
     margin: auto;
-    min-width: 40%;
-    max-width: 60%;
+    width: 40%;
+    max-width: 500pt;
 }
 
 #register-tabs {
     position: relative;
     display: flex;
-    margin-bottom: -1px;
     z-index: 2;
 }
 
@@ -68,9 +67,38 @@
     z-index: 1;
 }
 
-
 #register-close-btn {
     position: absolute;
     top: 10pt;
     right: 10pt;
+}
+
+.register-title {
+    margin: 0;
+}
+
+#register-content form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.register-form-content {
+    margin: 10pt 2em 20pt 0;
+}
+
+.register-form-content label {
+    margin-left: 2pt;
+}
+
+.register-form-content input {
+    border: 2px solid #1a1a1a;
+    border-radius: 10pt;
+
+    width: 100%;
+    padding: 10pt;
+}
+
+.register-form-content input:focus {
+    outline: 2px solid #1a1a1a;
 }
