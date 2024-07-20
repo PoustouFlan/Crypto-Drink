@@ -7,22 +7,25 @@ interface RegisterUserProps {
 }
 
 const RegisterUser: React.FC<RegisterUserProps> = ({onRegister}) => {
-    const {name} = useParams<{ name: string }>();
+    const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
     const handleRegister = async (event: React.FormEvent) => {
         event.preventDefault();
+        setLoading(true);
 
         try {
             await onRegister(username); // Call the prop function
             setSuccess(`User ${username} successfully registered!`);
             setUsername('');
             setError(null);
+            setLoading(false);
         } catch (err) {
             setError(`Failed to register user: ${(err as Error).message}`);
             setSuccess(null);
+            setLoading(false);
         }
     };
 
@@ -39,7 +42,7 @@ const RegisterUser: React.FC<RegisterUserProps> = ({onRegister}) => {
                         required
                     />
                 </label>
-                <button type="submit">Register</button>
+                <button type="submit" disabled={loading}>Register</button>
             </form>
             {error && <div className="error-message">{error}</div>}
             {success && <div className="success-message">{success}</div>}
