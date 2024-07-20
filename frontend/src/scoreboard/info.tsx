@@ -160,13 +160,17 @@ const ScoreboardInfo: React.FC = () => {
     if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <div className="scoreboard-details-container">
+        <div id="scoreboard-details-container">
+            <div id="scoreboard-header">
             <h1>{name} Scoreboard</h1>
             <button onClick={handleRefreshUsers} className="refresh-button">
-                <FontAwesomeIcon icon={faSync}/> Refresh All Users
+                <FontAwesomeIcon icon={faSync}/>
             </button>
+            </div>
             <RegisterUser onRegister={handleRegisterUser}/> {/* Pass the register handler */}
             <WebhookForm scoreboardName={name}/> {/* Add the WebhookForm component */}
+
+            <TopPlayersGraph users={sortedUsers.slice(0, 10)}/> {/* Add the TopPlayersGraph component */}
             <table className="scoreboard-table">
                 <thead>
                 <tr>
@@ -198,7 +202,6 @@ const ScoreboardInfo: React.FC = () => {
                 ))}
                 </tbody>
             </table>
-            <TopPlayersGraph users={sortedUsers.slice(0, 10)}/> {/* Add the TopPlayersGraph component */}
         </div>
     );
 };

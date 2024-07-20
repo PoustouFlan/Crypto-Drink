@@ -1,6 +1,8 @@
 // scoreboard/graph.tsx
 import React, {useEffect, useState} from 'react';
 import {Line} from 'react-chartjs-2';
+import "./graph.css"
+
 import {
     CategoryScale,
     Chart as ChartJS,
@@ -110,7 +112,7 @@ const TopPlayersGraph: React.FC<TopPlayersGraphProps> = ({users}) => {
     };
 
     return (
-        <div className="top-players-graph">
+        <div id="top-players-graph">
             <h2>Cumulative Scores of Top 10 Players</h2>
             <Line data={data} options={options}/>
         </div>

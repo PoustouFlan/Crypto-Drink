@@ -1,4 +1,15 @@
 /* info.css */
+
+#scoreboard-details-container {
+    max-width: 80vw;
+    margin: auto;
+}
+
+#scoreboard-header {
+    display: flex;
+    justify-content: center;
+}
+
 .scoreboard-table {
     width: 100%;
     border-collapse: collapse;
