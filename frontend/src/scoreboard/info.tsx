@@ -183,37 +183,39 @@ const ScoreboardInfo: React.FC = () => {
             />
 
             <TopPlayersGraph users={sortedUsers.slice(0, 10)}/> {/* Add the TopPlayersGraph component */}
-            <table className="scoreboard-table">
-                <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Score</th>
-                    <th>Solved Challenges</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {sortedUsers.map((user, index) => (
-                    <tr key={index}>
-                        <td>
-                            <Link to={`/scoreboard/${name}/user/${user.username}`}
-                                  className={"user-link"}>{user.username}</Link>
-                        </td>
-                        <td><span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
-                            {user.loading ? 'Loading...' : user.score}
-                            </span></td>
-                        <td><span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
-                            {user.loading ? 'Loading...' : user.solvedChallengesCount}
-                            </span></td>
-                        <td>
-                            <button onClick={() => handleDeleteUser(user.username)} className="delete-button">
-                                <FontAwesomeIcon icon={faTrash}/>
-                            </button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+
+            <div id="leaderboard-title">
+            <h2>Leaderboard</h2>
+            <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
+            Score
+            </span>
+
+            <span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
+            Solved Challenges
+            </span>
+            </div>
+            <ol id="scoreboard-table">
+            {sortedUsers.map((user, index) => (
+                <li key={index}>
+                    <div className="player-index">{("0" + (index + 1)).slice(-2)}</div>
+                    <div className="player-info">
+                        <Link to={`/scoreboard/${name}/user/${user.username}`}
+                              className="user-link">{user.username}</Link>
+                    <div className="player-info-stats">
+                    <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
+                        {user.loading ? 'Loading...' : user.score}
+                        </span>
+                    <span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
+                        {user.loading ? 'Loading...' : user.solvedChallengesCount}
+                        </span>
+                    </div>
+                    </div>
+                        <button onClick={() => handleDeleteUser(user.username)} className="delete-button">
+                            <FontAwesomeIcon icon={faTrash}/>
+                        </button>
+                </li>
+            ))}
+            </ol>
         </div>
     );
 };

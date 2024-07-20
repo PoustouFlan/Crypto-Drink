@@ -10,37 +10,73 @@
 /* Scoreboard specific */
 
 #scoreboard-details-container {
-    max-width: 80vw;
+    width: 80vw;
+    max-width: 1000pt;
     margin: auto;
 }
 
-.scoreboard-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-}
-
-.scoreboard-table th, .scoreboard-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-.scoreboard-table th {
-    background-color: #f2f2f2;
-}
-
-.scoreboard-table .icon-wrapper {
+#leaderboard-title {
     display: flex;
     align-items: center;
+    margin-top: 2em;
 }
 
-.scoreboard-table .gold-text {
+#leaderboard-title h2 {
+    flex: 1 1 auto;
+    margin: 0;
+}
+
+#scoreboard-table {
+    width: 100%;
+    padding: 0;
+}
+
+#scoreboard-table li {
+    display: flex;
+    align-items: center;
+
+    border-radius: 5pt;
+    padding: 5pt;
+}
+
+#scoreboard-table li:nth-child(odd) {
+    background-color: #333;
+}
+
+.player-index {
+    margin-right: 7pt;
+    margin-left: 5pt;
+    padding: 8px;
+
+    font-family: "IBM Plex Mono";
+    font-weight: bold;
+    text-align: center;
+}
+
+.player-info {
+    flex: 1 1 auto;
+}
+
+.user-link {
+    margin-left: 5pt;
+}
+
+.player-info-stats {
+    display: flex;
+}
+
+.icon-wrapper {
+    display: flex;
+    align-items: center;
+    margin: 0 8pt;
+}
+
+.gold-text {
     color: gold;
     margin-right: 5px;
 }
 
-.scoreboard-table .red-text {
+.red-text {
     color: red;
     margin-right: 5px;
 }
@@ -50,6 +86,7 @@
     border: none;
     color: red;
     cursor: pointer;
+    flex-grow: 0;
 }
 
 .delete-button:hover {
