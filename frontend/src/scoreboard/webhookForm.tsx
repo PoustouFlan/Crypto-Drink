@@ -2,6 +2,9 @@
 import React, {useState} from 'react';
 import {registerWebhookToScoreboard} from '../api';
 
+import {toast, Bounce} from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
+
 interface WebhookFormProps {
     scoreboardName: string;
 }
@@ -9,21 +12,29 @@ interface WebhookFormProps {
 const WebhookForm: React.FC<WebhookFormProps> = ({scoreboardName}) => {
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
-    const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError(null);
-        setSuccess(false);
+        const notifId = toast.loading("Registering...");
 
         try {
             await registerWebhookToScoreboard(scoreboardName, url);
-            setSuccess(true);
+            toast.update(notifId, {
+                render: `Webhook registered successfully!`,
+                isLoading: false,
+            });
             setUrl(''); // Clear the input field after successful submission
         } catch (err) {
-            setError(err as Error);
+            let error = err as Error;
+            toast.update(notifId, {
+                render: `Error: ${error.message}`,
+                type: "error",
+                isLoading: false,
+                transition: Bounce,
+                autoClose: 5000,
+                closeButton: null,
+            });
         } finally {
             setLoading(false);
         }
@@ -42,11 +53,7 @@ const WebhookForm: React.FC<WebhookFormProps> = ({scoreboardName}) => {
                     required
                 />
             </div>
-            <button type="submit" disabled={loading}>
-                {loading ? 'Registering...' : 'Register Webhook'}
-            </button>
-            {error && <p className="error">Error: {error.message}</p>}
-            {success && <p className="success">Webhook registered successfully!</p>}
+            <button type="submit" disabled={loading}>Register Webhook</button>
         </form>
     );
 };

@@ -1,30 +1,45 @@
 // scoreboard/register.tsx
 import React, {useState} from 'react';
-import {useParams} from 'react-router-dom';
+
+import {toast, Bounce} from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 interface RegisterUserProps {
-    onRegister: (username: string) => void; // Prop to handle user registration
+    onRegister: (username: string) => Promise<void>; // Prop to handle user registration
 }
 
 const RegisterUser: React.FC<RegisterUserProps> = ({onRegister}) => {
     const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState('');
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
 
     const handleRegister = async (event: React.FormEvent) => {
         event.preventDefault();
         setLoading(true);
+        const notifId = toast.loading("Registering...");
 
         try {
             await onRegister(username); // Call the prop function
-            setSuccess(`User ${username} successfully registered!`);
+
+            toast.update(notifId, {
+                render: `User ${username} successfully registered!`,
+                type: "success",
+                isLoading: false,
+                transition: Bounce,
+                autoClose: 5000,
+                closeButton: null,
+            });
+
             setUsername('');
-            setError(null);
-            setLoading(false);
         } catch (err) {
-            setError(`Failed to register user: ${(err as Error).message}`);
-            setSuccess(null);
+            toast.update(notifId, {
+                render: `Failed to register user: ${(err as Error).message}`,
+                type: "error",
+                isLoading: false,
+                transition: Bounce,
+                autoClose: 5000,
+                closeButton: null,
+            });
+        } finally {
             setLoading(false);
         }
     };
@@ -44,8 +59,6 @@ const RegisterUser: React.FC<RegisterUserProps> = ({onRegister}) => {
                 </label>
                 <button type="submit" disabled={loading}>Register</button>
             </form>
-            {error && <div className="error-message">{error}</div>}
-            {success && <div className="success-message">{success}</div>}
         </div>
     );
 };

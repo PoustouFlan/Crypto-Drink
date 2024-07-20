@@ -10,11 +10,13 @@ import {
     registerUserToScoreboard
 } from '../api';
 import './info.css';
+
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFlag, faStar, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import TopPlayersGraph from './graph'; // Import the TopPlayersGraph component
 import RegisterUser from './register'; // Import the RegisterUser component
 import WebhookForm from './webhookForm'; // Import the WebhookForm component
+import {ToastContainer} from 'react-toastify';
 
 interface User {
     username: string;
@@ -169,6 +171,14 @@ const ScoreboardInfo: React.FC = () => {
             </div>
             <RegisterUser onRegister={handleRegisterUser}/> {/* Pass the register handler */}
             <WebhookForm scoreboardName={name}/> {/* Add the WebhookForm component */}
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={true}
+                closeOnClick
+                theme="dark"
+            />
 
             <TopPlayersGraph users={sortedUsers.slice(0, 10)}/> {/* Add the TopPlayersGraph component */}
             <table className="scoreboard-table">
