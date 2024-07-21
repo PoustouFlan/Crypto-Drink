@@ -48,7 +48,9 @@ interface ScoreGraphProps {
 
 const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
     const [cumulativeScores, setCumulativeScores] = useState<any[]>([]);
-    const [timeRange, setTimeRange] = useState<'all' | 'day' | 'week' | 'month' | 'year'>('all');
+    const [timeRange, setTimeRange] = useState<'week' | 'month' | '4months' | 'year' | 'all'>('all');
+    const [endDate, setEndDate] = useState<Date | null>(null); // Store the end date
+    const [isFullScreen, setIsFullScreen] = useState(false); // Track fullscreen mode
     const chartRef = useRef<any>(null);
 
     useEffect(() => {
@@ -84,43 +86,55 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
             });
 
             setCumulativeScores(scores);
+
+            // Set the end date to the last date of the dataset
+            if (sortedDates.length > 0) {
+                setEndDate(new Date(sortedDates[sortedDates.length - 1]));
+            }
         };
 
         calculateCumulativeScores();
     }, [users]);
 
-    const getTimeRangeLimits = (range: 'all' | 'day' | 'week' | 'month' | 'year') => {
+    const getTimeRangeLimits = (range: 'week' | 'month' | '4months' | 'year' | 'all', endDate: Date | null) => {
         const now = new Date();
-        let minDate = new Date(0); // Epoch time
+        if (!endDate) endDate = now;
+
+        let startDate = new Date(endDate);
         switch (range) {
-            case 'day':
-                minDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                break;
             case 'week':
-                minDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                startDate.setDate(endDate.getDate() - 7);
                 break;
             case 'month':
-                minDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                startDate.setMonth(endDate.getMonth() - 1);
+                break;
+            case '4months':
+                startDate.setMonth(endDate.getMonth() - 4);
                 break;
             case 'year':
-                minDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                startDate.setFullYear(endDate.getFullYear() - 1);
                 break;
             default:
-                minDate = new Date(Math.min(...cumulativeScores.flatMap(userScores => userScores.map(score => new Date(score.date).getTime()))));
+                startDate = new Date(Math.min(...cumulativeScores.flatMap(userScores => userScores.map(score => new Date(score.date).getTime()))));
+                break;
         }
 
-        return {min: minDate, max: now};
+        return {min: startDate, max: endDate};
     };
 
     useEffect(() => {
         if (chartRef.current) {
             const chart = chartRef.current;
-            const {min, max} = getTimeRangeLimits(timeRange);
+            const {min, max} = getTimeRangeLimits(timeRange, endDate);
+
+            // Update x-axis with new range
             chart.options.scales.x.min = min;
             chart.options.scales.x.max = max;
-            chart.update();
+
+            // Force the chart to re-render
+            chart.update('none'); // Avoid animation when updating
         }
-    }, [timeRange, cumulativeScores]);
+    }, [timeRange, cumulativeScores, endDate]);
 
     const data = {
         labels: cumulativeScores[0]?.map((cs: any) => cs.date) || [],
@@ -130,7 +144,7 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
             borderColor: singleUser ? 'rgba(255, 99, 132, 1)' : `hsl(${index * 36}, 70%, 50%)`,
             backgroundColor: singleUser ? 'rgba(255, 99, 132, 0.2)' : `hsla(${index * 36}, 70%, 50%, 0.2)`,
             fill: singleUser,
-            pointRadius: singleUser ? 3 : 0, // Show points if only one user is displayed
+            pointRadius: singleUser || timeRange === 'week' || timeRange === "month" ? 3 : 0, // Show points for week or less
         })),
     };
 
@@ -141,6 +155,8 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
                 time: {
                     unit: 'day',
                 },
+                min: getTimeRangeLimits(timeRange, endDate).min,
+                max: getTimeRangeLimits(timeRange, endDate).max,
             },
             y: {
                 min: 0, // Y-axis starts from 0
@@ -166,24 +182,35 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
         },
     };
 
-    const handleTimeRangeChange = (range: 'all' | 'day' | 'week' | 'month' | 'year') => {
-        setTimeRange(range);
-    };
+    const handleTimeRangeChange = (range: 'week' | 'month' | '4months' | 'year' | 'all') => {
+        if (chartRef.current) {
+            const chart = chartRef.current;
+            const {min} = getTimeRangeLimits(range, endDate);
 
-    const handleResetZoom = () => {
-        chartRef.current.resetZoom();
+            // Update endDate based on current chart view
+            setEndDate(new Date(chart.options.scales.x.max));
+
+            setTimeRange(range);
+        }
     };
 
     const handleFullScreen = () => {
         const graphElement = document.getElementById('top-players-graph');
-        if (graphElement.requestFullscreen) {
-            graphElement.requestFullscreen();
-        } else if (graphElement.mozRequestFullScreen) { // Firefox
-            graphElement.mozRequestFullScreen();
-        } else if (graphElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
-            graphElement.webkitRequestFullscreen();
-        } else if (graphElement.msRequestFullscreen) { // IE/Edge
-            graphElement.msRequestFullscreen();
+        if (graphElement) {
+            if (isFullScreen) {
+                document.exitFullscreen();
+            } else {
+                if (graphElement.requestFullscreen) {
+                    graphElement.requestFullscreen();
+                } else if (graphElement.mozRequestFullScreen) { // Firefox
+                    graphElement.mozRequestFullScreen();
+                } else if (graphElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                    graphElement.webkitRequestFullscreen();
+                } else if (graphElement.msRequestFullscreen) { // IE/Edge
+                    graphElement.msRequestFullScreen();
+                }
+            }
+            setIsFullScreen(!isFullScreen);
         }
     };
 
@@ -191,13 +218,12 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
         <div id="top-players-graph">
             <h2>{singleUser ? 'Score' : 'Scores of Top 10 Players'}</h2>
             <div className="button-group">
+                <button onClick={() => handleTimeRangeChange('week')}>1 Week</button>
+                <button onClick={() => handleTimeRangeChange('month')}>1 Month</button>
+                <button onClick={() => handleTimeRangeChange('4months')}>4 Months</button>
+                <button onClick={() => handleTimeRangeChange('year')}>1 Year</button>
                 <button onClick={() => handleTimeRangeChange('all')}>All</button>
-                <button onClick={() => handleTimeRangeChange('day')}>Last Day</button>
-                <button onClick={() => handleTimeRangeChange('week')}>Last Week</button>
-                <button onClick={() => handleTimeRangeChange('month')}>Last Month</button>
-                <button onClick={() => handleTimeRangeChange('year')}>Last Year</button>
-                <button onClick={handleResetZoom}>Reset Zoom</button>
-                <button onClick={handleFullScreen}>Full Screen</button>
+                <button onClick={handleFullScreen}>{isFullScreen ? 'Exit Full Screen' : 'Full Screen'}</button>
             </div>
             <Line ref={chartRef} data={data} options={options}/>
         </div>
