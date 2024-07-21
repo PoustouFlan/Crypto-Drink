@@ -14,6 +14,9 @@ const Flaggers: React.FC = () => {
     const [flaggers, setFlaggers] = useState<{ date: string; username: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+    const [points, setPoints] = useState<number | null>(null);
+    const [totalSolves, setTotalSolves] = useState<number | null>(null);
+    const [scoreboardSolves, setScoreboardSolves] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,6 +28,11 @@ const Flaggers: React.FC = () => {
                     flaggersData = await fetchChallengeFlaggers(decodeURIComponent(challengeName), decodeURIComponent(categoryName));
                 }
                 setFlaggers(flaggersData.known_flaggers);
+                setPoints(flaggersData.points);
+                setTotalSolves(flaggersData.solves);
+                if (scoreboardName) {
+                    setScoreboardSolves(flaggersData.scoreboard_solves);
+                }
             } catch (err) {
                 setError(err as Error);
             } finally {
@@ -44,6 +52,11 @@ const Flaggers: React.FC = () => {
                 Flaggers for {decodeURIComponent(challengeName)} in {decodeURIComponent(categoryName)}
                 {scoreboardName && <> on {decodeURIComponent(scoreboardName)} Scoreboard</>}
             </h1>
+            <div>
+                <p>Challenge Points: <b>{points}</b></p>
+                <p>Total Solves on CryptoHack: <b>{totalSolves}</b></p>
+                {scoreboardName && <p>Solves on this Scoreboard: <b>{flaggers.length}</b></p>}
+            </div>
             <ul>
                 {flaggers.map((flagger, index) => (
                     <li key={index}>
