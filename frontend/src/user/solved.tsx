@@ -4,6 +4,7 @@ import React, {useEffect, useState} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar} from '@fortawesome/free-solid-svg-icons';
 import {fetchChallengeDetails} from '../api';
+import {Link, useParams} from "react-router-dom";
 
 interface SolvedChallenge {
     date: string;
@@ -18,6 +19,7 @@ interface SolvedChallengesProps {
 }
 
 const SolvedChallenges: React.FC<SolvedChallengesProps> = ({solvedChallenges: initialSolvedChallenges}) => {
+    const {scoreboardName} = useParams<{ scoreboardName?: string }>();
     const [solvedChallenges, setSolvedChallenges] = useState<SolvedChallenge[]>(initialSolvedChallenges);
 
     useEffect(() => {
@@ -62,8 +64,15 @@ const SolvedChallenges: React.FC<SolvedChallengesProps> = ({solvedChallenges: in
                 {solvedChallenges.map((challenge, index) => (
                     <tr key={index}>
                         <td>{challenge.date}</td>
-                        <td>{challenge.category}</td>
-                        <td>{challenge.name}</td>
+                        <td>
+                            <Link to={scoreboardName == null ? `/category/${encodeURIComponent(challenge.category)}`
+                                : `/scoreboard/${scoreboardName}/category/${encodeURIComponent(challenge.category)}`}>{challenge.category}</Link>
+                        </td>
+                        <td>
+                            <Link
+                                to={scoreboardName == null ? `/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`
+                                    : `/scoreboard/${scoreboardName}/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`}>{challenge.name}</Link>
+                        </td>
                         <td>
                             {challenge.loadingPoints ? (
                                 <span>Loading...</span>

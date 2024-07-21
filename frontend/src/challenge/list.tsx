@@ -4,13 +4,13 @@ import {Link, useParams} from 'react-router-dom';
 import {fetchChallengesByCategory} from '../api';
 
 interface ChallengeListParams {
-    category: string;
-    name: string;
+    categoryName: string;
+    scoreboardName?: string;
 }
 
 const ChallengeList: React.FC = () => {
-    const {category} = useParams<ChallengeListParams>();
-    const {name} = useParams<ChallengeListParams>();
+    const {categoryName} = useParams<ChallengeListParams>();
+    const {scoreboardName} = useParams<ChallengeListParams>();
     const [challenges, setChallenges] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -18,7 +18,7 @@ const ChallengeList: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const challengesData = await fetchChallengesByCategory(category);
+                const challengesData = await fetchChallengesByCategory(categoryName);
                 setChallenges(challengesData.challenges);
             } catch (err) {
                 setError(err as Error);
@@ -28,20 +28,20 @@ const ChallengeList: React.FC = () => {
         };
 
         fetchData();
-    }, [category]);
+    }, [categoryName]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
     return (
         <div className="challenge-list-container">
-            <h1>Challenges in {decodeURIComponent(category)}</h1>
+            <h1>Challenges in {decodeURIComponent(categoryName)}</h1>
             <ul>
                 {challenges.map((challenge, index) => (
                     <li key={index}>
                         <Link
-                            to={name == null ? `/category/${encodeURIComponent(category)}/${encodeURIComponent(challenge)}`
-                                : `/scoreboard/${name}/category/${encodeURIComponent(category)}/${encodeURIComponent(challenge)}`}>{challenge}</Link>
+                            to={scoreboardName == null ? `/category/${encodeURIComponent(categoryName)}/${encodeURIComponent(challenge)}`
+                                : `/scoreboard/${scoreboardName}/category/${encodeURIComponent(categoryName)}/${encodeURIComponent(challenge)}`}>{challenge}</Link>
                     </li>
                 ))}
             </ul>

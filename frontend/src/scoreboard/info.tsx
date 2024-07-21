@@ -26,7 +26,7 @@ interface User {
 }
 
 const ScoreboardInfo: React.FC = () => {
-    const {name} = useParams<{ name: string }>();
+    const {scoreboardName} = useParams<{ scoreboardName: string }>();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -34,7 +34,7 @@ const ScoreboardInfo: React.FC = () => {
     // Function to fetch the scoreboard details and user data
     const fetchData = useCallback(async () => {
         try {
-            const scoreboardInfo = await fetchScoreboardDetails(name);
+            const scoreboardInfo = await fetchScoreboardDetails(scoreboardName);
             const initialUsers = scoreboardInfo.users.map((username: string) => ({
                 username,
                 loading: true,
@@ -81,7 +81,7 @@ const ScoreboardInfo: React.FC = () => {
             setError(err as Error);
             setLoading(false);
         }
-    }, [name]);
+    }, [scoreboardName]);
 
     useEffect(() => {
         fetchData();
@@ -90,7 +90,7 @@ const ScoreboardInfo: React.FC = () => {
     // Function to handle user registration and refresh user list
     const handleRegisterUser = async (username: string) => {
         try {
-            await registerUserToScoreboard(name, username);
+            await registerUserToScoreboard(scoreboardName, username);
             await fetchData(); // Refresh the user list
         } catch (err) {
             setError(err as Error);
@@ -99,10 +99,10 @@ const ScoreboardInfo: React.FC = () => {
 
     const handleDeleteUser = async (username: string) => {
         try {
-            await deleteUserFromScoreboard(name, username);
+            await deleteUserFromScoreboard(scoreboardName, username);
             setUsers((prevUsers) => prevUsers.filter(user => user.username !== username));
         } catch (err) {
-            console.error(`Failed to delete user ${username} from scoreboard ${name}:`, err);
+            console.error(`Failed to delete user ${username} from scoreboard ${scoreboardName}:`, err);
         }
     };
 
@@ -163,7 +163,7 @@ const ScoreboardInfo: React.FC = () => {
     return (
         <div id="scoreboard-details-container">
             <div className="box-center">
-            <h1>{name} Scoreboard</h1>
+                <h1>{scoreboardName} Scoreboard</h1>
             <button onClick={handleRefreshUsers} className="refresh-button">
                 <FontAwesomeIcon icon={faSync}/>
             </button>
@@ -171,7 +171,7 @@ const ScoreboardInfo: React.FC = () => {
 
             <div className="box-center">
                 <RegisterPopup onRegister={handleRegisterUser}
-                    scoreboardName={name}></RegisterPopup>
+                               scoreboardName={scoreboardName}></RegisterPopup>
             </div>
             <ToastContainer
                 position="top-right"
@@ -199,7 +199,7 @@ const ScoreboardInfo: React.FC = () => {
                 <li key={index}>
                     <div className="player-index">{("0" + (index + 1)).slice(-2)}</div>
                     <div className="player-info">
-                        <Link to={`/scoreboard/${name}/user/${user.username}`}
+                        <Link to={`/scoreboard/${scoreboardName}/user/${user.username}`}
                               className="user-link">{user.username}</Link>
                     <div className="player-info-stats">
                     <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>

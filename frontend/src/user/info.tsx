@@ -5,8 +5,9 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar, faSyncAlt, faTint} from '@fortawesome/free-solid-svg-icons';
 import {fetchChallengeDetails, fetchUserData, refreshUserData} from '../api';
 import ScoreGraph from './graph';
-import UserCompletionRadar from './radar'; // Import the radar graph component
-import {Link, useParams} from "react-router-dom"; // Import the ScoreGraph component
+import UserCompletionRadar from './radar';
+import SolvedChallenges from './solved'; // Import the SolvedChallenges component
+import {useParams} from "react-router-dom";
 
 interface UserInfoProps {
     username: string;
@@ -35,12 +36,12 @@ interface User {
         total: number;
         score: number;
         total_score: number;
-    }[]; // Add the completion property
+    }[];
 }
 
 const UserInfo: React.FC<UserInfoProps> = () => {
     const {username} = useParams<{ username: string }>();
-    const {name} = useParams<{ name: string }>();
+    const {scoreboardName} = useParams<{ scoreboardName: string }>();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -62,16 +63,14 @@ const UserInfo: React.FC<UserInfoProps> = () => {
         try {
             const userData = await fetchUserData(username);
 
-            // Initialize solved challenges with loading state
             const initialSolvedChallenges = userData.solved_challenges.map(challenge => ({
                 ...challenge,
-                loadingPoints: true // Mark all challenges as loading initially
+                loadingPoints: true
             }));
 
             setUser({...userData, solved_challenges: initialSolvedChallenges});
-            setLoading(false); // Set loading to false as soon as head data is loaded
+            setLoading(false);
 
-            // Fetch details for each challenge
             const updatedSolvedChallenges = await fetchChallengeDetailsForUser(userData.solved_challenges);
             setUser(prevUser => prevUser ? {...prevUser, solved_challenges: updatedSolvedChallenges} : prevUser);
 
@@ -90,15 +89,13 @@ const UserInfo: React.FC<UserInfoProps> = () => {
         try {
             const userData = await refreshUserData(username);
 
-            // Initialize solved challenges with loading state
             const initialSolvedChallenges = userData.solved_challenges.map(challenge => ({
                 ...challenge,
-                loadingPoints: true // Mark all challenges as loading initially
+                loadingPoints: true
             }));
 
             setUser({...userData, solved_challenges: initialSolvedChallenges});
 
-            // Fetch details for each challenge
             const updatedSolvedChallenges = await fetchChallengeDetailsForUser(userData.solved_challenges);
             setUser(prevUser => prevUser ? {...prevUser, solved_challenges: updatedSolvedChallenges} : prevUser);
 
@@ -137,44 +134,7 @@ const UserInfo: React.FC<UserInfoProps> = () => {
                 {user && <ScoreGraph solvedChallenges={user.solved_challenges.filter(sc => !sc.loadingPoints)}/>}
             </div>
             {user && <UserCompletionRadar completion={user.completion} useScore={false}/>}
-            <h3>Solved Challenges</h3>
-            <div className="recent-solves">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Category</th>
-                        <th>Challenge</th>
-                        <th>Points</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {user?.solved_challenges?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((challenge, index) => (
-                        <tr key={index}>
-                            <td>{challenge.date}</td>
-                            <td>
-                                <Link to={name == null ? `/category/${encodeURIComponent(challenge.category)}`
-                                    : `/scoreboard/${name}/category/${encodeURIComponent(challenge.category)}`}>{challenge.category}</Link>
-                            </td>
-                            <td>
-                                <Link
-                                    to={name == null ? `/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`
-                                        : `/scoreboard/${name}/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`}>{challenge.name}</Link>
-                            </td>
-                            <td>
-                                {challenge.loadingPoints ? (
-                                    <span>Loading...</span>
-                                ) : (
-                                    <span>
-                                            <FontAwesomeIcon icon={faStar} className="gold-text"/> {challenge.points}
-                                        </span>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
+            {user && <SolvedChallenges solvedChallenges={user.solved_challenges}/>}
         </div>
     );
 };

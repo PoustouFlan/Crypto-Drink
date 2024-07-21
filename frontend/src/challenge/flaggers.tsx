@@ -1,15 +1,16 @@
 // challenge/flaggers.tsx
 import React, {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
-import {fetchChallengeFlaggers} from '../api';
+import {fetchChallengeFlaggers, fetchScoreboardChallengeFlaggers} from '../api';
 
-interface ChallengeFlaggersParams {
+interface FlaggersParams {
+    scoreboardName?: string;
     categoryName: string;
     challengeName: string;
 }
 
-const ChallengeFlaggers: React.FC = () => {
-    const {categoryName, challengeName} = useParams<ChallengeFlaggersParams>();
+const Flaggers: React.FC = () => {
+    const {scoreboardName, categoryName, challengeName} = useParams<FlaggersParams>();
     const [flaggers, setFlaggers] = useState<{ date: string; username: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -17,7 +18,12 @@ const ChallengeFlaggers: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const flaggersData = await fetchChallengeFlaggers(decodeURIComponent(challengeName), decodeURIComponent(categoryName));
+                let flaggersData;
+                if (scoreboardName) {
+                    flaggersData = await fetchScoreboardChallengeFlaggers(scoreboardName, decodeURIComponent(challengeName), decodeURIComponent(categoryName));
+                } else {
+                    flaggersData = await fetchChallengeFlaggers(decodeURIComponent(challengeName), decodeURIComponent(categoryName));
+                }
                 setFlaggers(flaggersData.known_flaggers);
             } catch (err) {
                 setError(err as Error);
@@ -27,18 +33,22 @@ const ChallengeFlaggers: React.FC = () => {
         };
 
         fetchData();
-    }, [categoryName, challengeName]);
+    }, [scoreboardName, categoryName, challengeName]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
     return (
-        <div className="challenge-flaggers-container">
-            <h1>Flaggers for {decodeURIComponent(challengeName)} in {decodeURIComponent(categoryName)}</h1>
+        <div className="flaggers-container">
+            <h1>
+                Flaggers for {decodeURIComponent(challengeName)} in {decodeURIComponent(categoryName)}
+                {scoreboardName && <> on {decodeURIComponent(scoreboardName)} Scoreboard</>}
+            </h1>
             <ul>
                 {flaggers.map((flagger, index) => (
                     <li key={index}>
-                        {flagger.date} - <Link to={`/user/${flagger.username}`}>{flagger.username}</Link>
+                        {flagger.date} - <Link
+                        to={scoreboardName ? `/scoreboard/${scoreboardName}/user/${flagger.username}` : `/user/${flagger.username}`}>{flagger.username}</Link>
                     </li>
                 ))}
             </ul>
@@ -46,4 +56,4 @@ const ChallengeFlaggers: React.FC = () => {
     );
 };
 
-export default ChallengeFlaggers;
+export default Flaggers;
