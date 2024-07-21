@@ -1,11 +1,11 @@
 // user/info.tsx
-
 import React, {useEffect, useState} from 'react';
 import './user.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar, faSyncAlt, faTint} from '@fortawesome/free-solid-svg-icons';
 import {fetchChallengeDetails, fetchUserData, refreshUserData} from '../api';
 import ScoreGraph from './graph';
+import UserCompletionRadar from './radar'; // Import the radar graph component
 import {Link, useParams} from "react-router-dom"; // Import the ScoreGraph component
 
 interface UserInfoProps {
@@ -29,6 +29,13 @@ interface User {
     score: number;
     first_bloods: number;
     solved_challenges: SolvedChallenge[];
+    completion: {
+        name: string;
+        solved: number;
+        total: number;
+        score: number;
+        total_score: number;
+    }[]; // Add the completion property
 }
 
 const UserInfo: React.FC<UserInfoProps> = () => {
@@ -129,6 +136,7 @@ const UserInfo: React.FC<UserInfoProps> = () => {
             <div className={"user-graph"}>
                 {user && <ScoreGraph solvedChallenges={user.solved_challenges.filter(sc => !sc.loadingPoints)}/>}
             </div>
+            {user && <UserCompletionRadar completion={user.completion} useScore={false}/>}
             <h3>Solved Challenges</h3>
             <div className="recent-solves">
                 <table>

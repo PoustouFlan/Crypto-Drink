@@ -9,6 +9,9 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 public class UserResponse {
+    @JsonProperty("completion")
+    private List<CategoryCompletionResponse> completion;
+
     @JsonProperty("country")
     private String country;
 

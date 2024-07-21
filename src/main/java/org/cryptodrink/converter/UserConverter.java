@@ -37,6 +37,7 @@ public class UserConverter {
     {
         List<SolvedChallengeEntity> solved = userService.getSolvedChallenges(user);
         return new UserResponse(
+                userService.getCompletion(user), // TODO: layer
                 user.getCountry(),
                 user.getFirstBloods(),
                 user.getJoined().toString(), // TODO: Format

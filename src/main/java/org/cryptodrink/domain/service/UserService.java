@@ -5,15 +5,15 @@ import org.cryptodrink.converter.SolvedChallengeConverter;
 import org.cryptodrink.converter.UserConverter;
 import org.cryptodrink.data.model.UserModel;
 import org.cryptodrink.data.repository.UserRepository;
-import org.cryptodrink.domain.entity.ScoreboardEntity;
-import org.cryptodrink.domain.entity.SolvedChallengeEntity;
-import org.cryptodrink.domain.entity.UserEntity;
+import org.cryptodrink.domain.entity.*;
 import org.cryptodrink.domain.service.cryptohack.CryptoHackAPI;
+import org.cryptodrink.presentation.rest.response.CategoryCompletionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +31,8 @@ public class UserService {
     SolvedChallengeConverter solvedChallengeConverter;
     @Inject
     ScoreboardConverter scoreboardConverter;
+    @Inject
+    CategoryService categoryService;
 
     public Optional<UserEntity> find(String username, Boolean databaseAllowed, Boolean apiAllowed)
     {
@@ -62,5 +64,31 @@ public class UserService {
     {
         UserModel model = users.findById(user.getId());
         return model.getScoreboards().stream().map(scoreboardConverter::convert).toList();
+    }
+
+    public List<CategoryCompletionResponse> getCompletion(UserEntity user) {
+        // TODO: not properly layered :(
+        List<CategoryCompletionResponse> completion = new ArrayList<>();
+        for (CategoryEntity category : categoryService.findAll()) {
+            List<ChallengeEntity> challenges = categoryService.listAllChallenges(category);
+            Integer solved = 0;
+            Integer totalScore = 0;
+            Integer score = 0;
+            for (ChallengeEntity challenge : challenges) {
+                totalScore += challenge.getPoints();
+                if (getSolvedChallenges(user).stream().anyMatch(
+                        s -> challenge.getId().equals(s.getChallenge().getId())
+                )) {
+                    score += challenge.getPoints();
+                    solved++;
+                }
+            }
+
+            completion.add(new CategoryCompletionResponse(
+                    category.getName(), solved, challenges.size(), score, totalScore
+            ));
+        }
+
+        return completion;
     }
 }
