@@ -1,5 +1,5 @@
 // user/radar.tsx
-import React from 'react';
+import React, {useState} from 'react';
 import {Radar} from 'react-chartjs-2';
 import {Chart, Filler, Legend, LineElement, PointElement, RadialLinearScale, Tooltip} from 'chart.js';
 
@@ -17,12 +17,14 @@ interface UserCompletionRadarProps {
 }
 
 const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({completion, useScore = false}) => {
+    const [showScore, setShowScore] = useState(useScore);
+
     const data = {
         labels: completion.map(c => c.name),
         datasets: [
             {
-                label: useScore ? 'Score' : 'Challenges Solved',
-                data: useScore
+                label: showScore ? 'Score' : 'Challenges Solved',
+                data: showScore
                     ? completion.map(c => (c.score / c.total_score) * 100)
                     : completion.map(c => (c.solved / c.total) * 100),
                 backgroundColor: completion.map(c => (c.solved === c.total ? 'rgba(34, 202, 236, 0.5)' : 'rgba(34, 202, 236, 0.2)')),
@@ -52,7 +54,7 @@ const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({completion, us
                     label: function (context: any) {
                         const index = context.dataIndex;
                         const category = completion[index];
-                        if (useScore) {
+                        if (showScore) {
                             return `${category.name}: ${category.score} / ${category.total_score} (${Math.round(context.raw)}%)`;
                         } else {
                             return `${category.name}: ${category.solved} / ${category.total} (${Math.round(context.raw)}%)`;
@@ -65,6 +67,9 @@ const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({completion, us
 
     return (
         <div>
+            <button onClick={() => setShowScore(!showScore)}>
+                {showScore ? 'Show Challenges Solved' : 'Show Score'}
+            </button>
             <Radar data={data} options={options}/>
         </div>
     );
