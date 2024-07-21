@@ -3,16 +3,8 @@
 import React, {useEffect, useState} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar} from '@fortawesome/free-solid-svg-icons';
-import {fetchChallengeDetails} from '../api';
+import {fetchChallengeDetails, SolvedChallenge} from '../api';
 import {Link, useParams} from "react-router-dom";
-
-interface SolvedChallenge {
-    date: string;
-    category: string;
-    name: string;
-    points?: number;
-    loadingPoints: boolean;
-}
 
 interface SolvedChallengesProps {
     solvedChallenges: SolvedChallenge[];
@@ -27,6 +19,8 @@ const SolvedChallenges: React.FC<SolvedChallengesProps> = ({solvedChallenges: in
         const fetchAndUpdateChallenges = async () => {
             const updatedChallenges = await Promise.all(initialSolvedChallenges.map(async (challenge) => {
                 try {
+                    if (!challenge.name || !challenge.category)
+                        return {...challenge, points: 0, loadingPoints: false};
                     const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
                     return {...challenge, points: challengeDetails.points, loadingPoints: false};
                 } catch (err) {
@@ -58,6 +52,7 @@ const SolvedChallenges: React.FC<SolvedChallengesProps> = ({solvedChallenges: in
                 </thead>
                 <tbody>
                 {solvedChallenges.map((challenge, index) => (
+                    !challenge.name || !challenge.category ? <></> :
                     <tr key={index}>
                         <td>{challenge.date}</td>
                         <td>

@@ -6,13 +6,13 @@ import Flag from 'react-world-flags'; // Import the Flag component
 import {fetchTotalUsers} from '../api'; // Import the method to fetch total users
 
 interface UserHeaderProps {
-    username: string;
-    joined: string;
-    rank: number;
-    country: string; // Country code, e.g., 'fr'
-    level: number;
-    score: number;
-    first_bloods: number;
+    username?: string;
+    joined?: string;
+    rank?: number;
+    country?: string; // Country code, e.g., 'fr'
+    level?: number;
+    score?: number;
+    first_bloods?: number;
 }
 
 const UserHeader: React.FC<UserHeaderProps> = ({username, joined, rank, country, level, score, first_bloods}) => {

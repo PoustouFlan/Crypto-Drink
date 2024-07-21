@@ -3,52 +3,35 @@ import React, {useEffect, useState} from 'react';
 import './user.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faSyncAlt} from '@fortawesome/free-solid-svg-icons';
-import {fetchChallengeDetails, fetchUserData, refreshUserData} from '../api';
+import {fetchChallengeDetails, fetchUserData, refreshUserData, SolvedChallenge, User} from '../api';
 import ScoreGraph from './graph'; // Adjusted import path
 import UserCompletionRadar from './radar';
 import SolvedChallenges from './solved'; // Import the SolvedChallenges component
 import UserHeader from './header'; // Import UserHeader
 import {useParams} from 'react-router-dom';
 
-interface UserInfoProps {
+interface UserInfoProps extends Record<string, string | undefined> {
     username: string;
 }
 
-interface SolvedChallenge {
-    date: string;
-    category: string;
-    name: string;
-    points?: number;
-    loadingPoints: boolean;
-}
-
-interface User {
-    username: string;
-    joined: string;
-    rank: number;
-    country: string;
-    level: number;
-    score: number;
-    first_bloods: number;
-    solved_challenges: SolvedChallenge[];
-    completion: {
-        name: string;
-        solved: number;
-        total: number;
-        score: number;
-        total_score: number;
-    }[];
-}
-
-const UserInfo: React.FC<UserInfoProps> = () => {
-    const {username} = useParams<{ username: string }>();
+const UserInfo: React.FC = () => {
+    const {username} = useParams<UserInfoProps>();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
+    if (!username) {
+        setError(new Error('Unknown category or challenge'));
+        setLoading(false);
+        return;
+    }
+
+
     const fetchChallengeDetailsForUser = async (solvedChallenges: SolvedChallenge[]) => {
-        const updatedChallenges = await Promise.all(solvedChallenges.map(async (challenge) => {
+        return await Promise.all(solvedChallenges.map(async (challenge) => {
             try {
+                if (!challenge.name || !challenge.category)
+                    return {...challenge, points: 0, loadingPoints: false};
                 const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
                 return {...challenge, points: challengeDetails.points, loadingPoints: false};
             } catch (err) {
@@ -56,7 +39,6 @@ const UserInfo: React.FC<UserInfoProps> = () => {
                 return {...challenge, points: 0, loadingPoints: false};
             }
         }));
-        return updatedChallenges;
     };
 
     const fetchData = async () => {
@@ -128,8 +110,8 @@ const UserInfo: React.FC<UserInfoProps> = () => {
                     <div className="user-graph">
                         <ScoreGraph users={[user]} singleUser={true}/>
                     </div>
-                    <UserCompletionRadar completion={user.completion} useScore={false}/>
-                    <SolvedChallenges solvedChallenges={user.solved_challenges}/>
+                    {user.completion && <UserCompletionRadar completion={user.completion} useScore={false}/>}
+                    {user.solved_challenges && <SolvedChallenges solvedChallenges={user.solved_challenges}/>}
                 </>
             )}
         </div>

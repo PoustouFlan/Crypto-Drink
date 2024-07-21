@@ -1,4 +1,3 @@
-// user/radar.tsx
 import React, {useState} from 'react';
 import {Radar} from 'react-chartjs-2';
 import {Chart, Filler, Legend, LineElement, PointElement, RadialLinearScale, Tooltip} from 'chart.js';
@@ -38,13 +37,16 @@ const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({completion, us
     const options = {
         scales: {
             r: {
+                type: 'radialLinear' as const, // Correct scale type
                 angleLines: {
                     display: false,
                 },
                 suggestedMin: 0,
                 suggestedMax: 100,
                 ticks: {
-                    callback: (value: number) => `${value}%`,
+                    callback: function (value: number | string) {
+                        return typeof value === 'number' ? `${value}%` : `${value}`;
+                    },
                 },
             },
         },

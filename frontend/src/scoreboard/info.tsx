@@ -7,7 +7,9 @@ import {
     fetchScoreboardDetails,
     fetchUserData,
     refreshUserData,
-    registerUserToScoreboard
+    registerUserToScoreboard,
+    SolvedChallenge,
+    User
 } from '../api';
 import './info.css';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -17,20 +19,17 @@ import {ToastContainer} from 'react-toastify';
 import RegisterPopup from './registerPopup';
 import WorldFlags from 'react-world-flags'; // Import flag component if using a library
 
-interface User {
-    username: string;
-    score?: number;
-    solvedChallengesCount?: number;
-    solvedChallenges?: { date: string; points: number }[];
-    countryCode?: string; // Add country code
-    loading: boolean;
-}
-
 const ScoreboardInfo: React.FC = () => {
     const {scoreboardName} = useParams<{ scoreboardName: string }>();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+
+    if (!scoreboardName) {
+        setError(new Error('Unknown category or challenge'));
+        setLoading(false);
+        return;
+    }
 
     const fetchData = useCallback(async () => {
         try {
@@ -46,8 +45,13 @@ const ScoreboardInfo: React.FC = () => {
             for (const user of initialUsers) {
                 try {
                     const userData = await fetchUserData(user.username);
-                    const solvedChallenges = await Promise.all(userData.solved_challenges.map(async (challenge) => {
+                    const solvedChallenges: SolvedChallenge[] = await Promise.all(userData.solved_challenges.map(async (challenge) => {
                         try {
+                            if (!challenge.name || !challenge.category)
+                                return {
+                                    date: challenge.date,
+                                    points: 0,
+                                };
                             const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
                             return {
                                 date: challenge.date,
@@ -63,14 +67,13 @@ const ScoreboardInfo: React.FC = () => {
                     }));
 
                     setUsers((prevUsers) => {
-                        const updatedUsers = prevUsers.map((u) => {
+                        const updatedUsers: User[] = prevUsers.map((u) => {
                             if (u.username === user.username) {
                                 return {
                                     username: userData.username,
                                     score: userData.score,
-                                    solvedChallengesCount: userData.solved_challenges.length,
                                     solved_challenges: solvedChallenges,
-                                    countryCode: userData.country, // Add country code
+                                    country: userData.country, // Add country code
                                     loading: false,
                                 };
                             }
@@ -119,6 +122,11 @@ const ScoreboardInfo: React.FC = () => {
                     const refreshedUserData = await refreshUserData(user.username);
                     const solvedChallenges = await Promise.all(refreshedUserData.solved_challenges.map(async (challenge) => {
                         try {
+                            if (!challenge.name || !challenge.category)
+                                return {
+                                    date: challenge.date,
+                                    points: 0,
+                                };
                             const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
                             return {
                                 date: challenge.date,
@@ -138,9 +146,8 @@ const ScoreboardInfo: React.FC = () => {
                             ? {
                                 username: refreshedUserData.username,
                                 score: refreshedUserData.score,
-                                solvedChallengesCount: refreshedUserData.solved_challenges.length,
                                 solved_challenges: solvedChallenges,
-                                countryCode: refreshedUserData.country, // Add country code
+                                country: refreshedUserData.country, // Add country code
                                 loading: false
                             }
                             : u
@@ -208,7 +215,7 @@ const ScoreboardInfo: React.FC = () => {
                         <div className="player-info">
                             <div className="user-name">
                                 <Link to={`/scoreboard/${scoreboardName}/user/${user.username}`} className="user-link">
-                                    {user.countryCode && <WorldFlags code={user.countryCode} style={{
+                                    {user.country && <WorldFlags code={user.country} style={{
                                         width: '24px',
                                         height: '16px'
                                     }}/>} {/* Display flag */}
@@ -220,7 +227,7 @@ const ScoreboardInfo: React.FC = () => {
                                     {user.loading ? 'Loading...' : user.score}
                                 </span>
                                 <span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
-                                    {user.loading ? 'Loading...' : user.solvedChallengesCount}
+                                    {user.loading ? 'Loading...' : user.solved_challenges.length}
                                 </span>
                             </div>
                         </div>

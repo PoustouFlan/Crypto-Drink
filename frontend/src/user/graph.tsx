@@ -1,9 +1,9 @@
-// user/graph.tsx
 import React, {useEffect, useRef, useState} from 'react';
 import {Line} from 'react-chartjs-2';
 import {
     CategoryScale,
     Chart as ChartJS,
+    ChartOptions,
     Filler,
     Legend,
     LinearScale,
@@ -14,8 +14,9 @@ import {
     Tooltip,
 } from 'chart.js';
 import zoomPlugin from 'chartjs-plugin-zoom';
-import 'chartjs-adapter-moment';
+import 'chartjs-adapter-moment'; // for time scale
 import "./graph.css";
+import {User} from '../api';
 
 ChartJS.register(
     CategoryScale,
@@ -30,15 +31,9 @@ ChartJS.register(
     zoomPlugin // Register the zoom plugin
 );
 
-interface SolvedChallenge {
+interface ScoreEntry {
     date: string;
-    points: number;
-}
-
-interface User {
-    username: string;
-    solved_challenges?: SolvedChallenge[];
-    score?: number;
+    score: number;
 }
 
 interface ScoreGraphProps {
@@ -47,7 +42,7 @@ interface ScoreGraphProps {
 }
 
 const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
-    const [cumulativeScores, setCumulativeScores] = useState<any[]>([]);
+    const [cumulativeScores, setCumulativeScores] = useState<ScoreEntry[][]>([]);
     const [timeRange, setTimeRange] = useState<'week' | 'month' | '4months' | 'year' | 'all'>('all');
     const [endDate, setEndDate] = useState<Date | null>(null); // Store the end date
     const [isFullScreen, setIsFullScreen] = useState(false); // Track fullscreen mode
@@ -71,7 +66,7 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
 
                 const sortedChallenges = user.solved_challenges?.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 sortedChallenges?.forEach(challenge => {
-                    totalScore += challenge.points;
+                    totalScore += challenge.points || 0;
                     dateScoreMap.set(challenge.date, totalScore);
                 });
 
@@ -119,7 +114,7 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
                 break;
         }
 
-        return {min: startDate, max: endDate};
+        return {min: startDate.getTime(), max: endDate.getTime()}; // Return timestamps
     };
 
     useEffect(() => {
@@ -148,15 +143,15 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
         })),
     };
 
-    const options = {
+    const options: ChartOptions<'line'> = {
         scales: {
             x: {
-                type: 'time',
+                type: 'time', // Must be exactly 'time'
                 time: {
-                    unit: 'day',
+                    unit: 'day' as const, // Explicitly type as 'day'
                 },
-                min: getTimeRangeLimits(timeRange, endDate).min,
-                max: getTimeRangeLimits(timeRange, endDate).max,
+                min: getTimeRangeLimits(timeRange, endDate).min, // Ensure min is a number (timestamp)
+                max: getTimeRangeLimits(timeRange, endDate).max, // Ensure max is a number (timestamp)
             },
             y: {
                 min: 0, // Y-axis starts from 0
@@ -172,11 +167,11 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
                     pinch: {
                         enabled: true,
                     },
-                    mode: 'x',
+                    mode: 'x' as const, // Explicitly type as 'x'
                 },
                 pan: {
                     enabled: true,
-                    mode: 'x',
+                    mode: 'x' as const, // Explicitly type as 'x'
                 },
             },
         },
@@ -185,7 +180,6 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
     const handleTimeRangeChange = (range: 'week' | 'month' | '4months' | 'year' | 'all') => {
         if (chartRef.current) {
             const chart = chartRef.current;
-            const {min} = getTimeRangeLimits(range, endDate);
 
             // Update endDate based on current chart view
             setEndDate(new Date(chart.options.scales.x.max));
@@ -202,12 +196,12 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
             } else {
                 if (graphElement.requestFullscreen) {
                     graphElement.requestFullscreen();
-                } else if (graphElement.mozRequestFullScreen) { // Firefox
-                    graphElement.mozRequestFullScreen();
-                } else if (graphElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
-                    graphElement.webkitRequestFullscreen();
-                } else if (graphElement.msRequestFullscreen) { // IE/Edge
-                    graphElement.msRequestFullScreen();
+                } else if ((graphElement as any).mozRequestFullScreen) { // Firefox
+                    (graphElement as any).mozRequestFullScreen();
+                } else if ((graphElement as any).webkitRequestFullscreen) { // Chrome, Safari and Opera
+                    (graphElement as any).webkitRequestFullscreen();
+                } else if ((graphElement as any).msRequestFullscreen) { // IE/Edge
+                    (graphElement as any).msRequestFullscreen();
                 }
             }
             setIsFullScreen(!isFullScreen);

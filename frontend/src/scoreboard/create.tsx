@@ -28,7 +28,7 @@ const CreateScoreboard: React.FC<CreateScoreboardProps> = ({onScoreboardCreated}
             // Call the refresh function passed from parent
             onScoreboardCreated();
         } catch (err) {
-            setError(`Failed to create scoreboard: ${err.message}`);
+            setError(`Failed to create scoreboard: ${(err as Error).message}`);
             setSuccess(null);
         }
     };

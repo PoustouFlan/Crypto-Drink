@@ -1,11 +1,11 @@
 // scoreboard/page.tsx
 import React, {useEffect, useState} from 'react';
-import {fetchScoreboards} from '../api';
+import {fetchScoreboards, Scoreboard} from '../api';
 import ScoreboardList from './list';
 import CreateScoreboard from "./create.tsx";
 
 const ScoreboardPage: React.FC = () => {
-    const [scoreboards, setScoreboards] = useState([]);
+    const [scoreboards, setScoreboards] = useState<Scoreboard[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 

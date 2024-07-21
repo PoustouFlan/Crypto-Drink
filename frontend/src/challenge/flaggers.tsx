@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
 import {fetchChallengeFlaggers, fetchScoreboardChallengeFlaggers} from '../api';
 
-interface FlaggersParams {
+interface FlaggersParams extends Record<string, string | undefined> {
     scoreboardName?: string;
     categoryName: string;
     challengeName: string;
@@ -16,7 +16,12 @@ const Flaggers: React.FC = () => {
     const [error, setError] = useState<Error | null>(null);
     const [points, setPoints] = useState<number | null>(null);
     const [totalSolves, setTotalSolves] = useState<number | null>(null);
-    const [scoreboardSolves, setScoreboardSolves] = useState<number | null>(null);
+
+    if (!categoryName || !challengeName) {
+        setError(new Error('Unknown category or challenge'));
+        setLoading(false);
+        return;
+    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,9 +35,6 @@ const Flaggers: React.FC = () => {
                 setFlaggers(flaggersData.known_flaggers);
                 setPoints(flaggersData.points);
                 setTotalSolves(flaggersData.solves);
-                if (scoreboardName) {
-                    setScoreboardSolves(flaggersData.scoreboard_solves);
-                }
             } catch (err) {
                 setError(err as Error);
             } finally {

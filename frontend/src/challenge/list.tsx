@@ -3,17 +3,19 @@ import React, {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
 import {fetchChallengesByCategory} from '../api';
 
-interface ChallengeListParams {
+interface ChallengeListParams extends Record<string, string | undefined> {
     categoryName: string;
     scoreboardName?: string;
 }
 
 const ChallengeList: React.FC = () => {
-    const {categoryName} = useParams<ChallengeListParams>();
-    const {scoreboardName} = useParams<ChallengeListParams>();
+    const {categoryName, scoreboardName} = useParams<ChallengeListParams>();
     const [challenges, setChallenges] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+
+    if (!categoryName)
+        return;
 
     useEffect(() => {
         const fetchData = async () => {

@@ -9,7 +9,39 @@ const scoreboardDetailsCache = new Map();
 const categoryCache = new Map();
 const totalUsersCache = new Map();
 
-export const fetchUserData = async (username: string) => {
+export interface Scoreboard {
+    name: string;
+    users: string[];
+}
+
+export interface SolvedChallenge {
+    date: string;
+    category?: string;
+    name?: string;
+    points?: number;
+    loadingPoints?: boolean;
+}
+
+export interface User {
+    loading?: boolean;
+    username: string;
+    joined?: string;
+    rank?: number;
+    country?: string;
+    level?: number;
+    score: number;
+    first_bloods?: number;
+    solved_challenges: SolvedChallenge[];
+    completion?: {
+        name: string;
+        solved: number;
+        total: number;
+        score: number;
+        total_score: number;
+    }[];
+}
+
+export const fetchUserData = async (username: string): Promise<User> => {
     if (userCache.has(username)) {
         return userCache.get(username);
     }
@@ -20,7 +52,7 @@ export const fetchUserData = async (username: string) => {
         userCache.set(username, data);
         return data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -41,7 +73,7 @@ export const fetchChallengeDetails = async (name: string, category: string) => {
     }
 };
 
-export const fetchScoreboards = async () => {
+export const fetchScoreboards = async (): Promise<Scoreboard[]> => {
     if (scoreboardCache.size > 0) {
         return Array.from(scoreboardCache.values())[0]; // Return the first value since there should only be one
     }
@@ -52,7 +84,7 @@ export const fetchScoreboards = async () => {
         scoreboardCache.set('scoreboard', data); // Store the response with a fixed key
         return data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -67,7 +99,7 @@ export const fetchScoreboardDetails = async (name: string) => {
         scoreboardDetailsCache.set(name, data);
         return data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -79,7 +111,7 @@ export const createScoreboard = async (name: string) => {
         scoreboardCache.clear();
         return response.data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -90,7 +122,7 @@ export const deleteScoreboard = async (name: string) => {
         // Clear the cache for scoreboards after deletion
         scoreboardCache.clear();
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -101,7 +133,7 @@ export const registerUserToScoreboard = async (scoreboardName: string, username:
         // Clear the cache for scoreboards and scoreboard details after registration
         scoreboardDetailsCache.delete(scoreboardName);
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -112,12 +144,12 @@ export const deleteUserFromScoreboard = async (scoreboardName: string, username:
         // Clear the cache for scoreboard details after user deletion
         scoreboardDetailsCache.delete(scoreboardName);
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
 // New method to refresh user data
-export const refreshUserData = async (username: string) => {
+export const refreshUserData = async (username: string): Promise<User> => {
     try {
         const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/user/${username}`);
         const data = response.data;
@@ -125,7 +157,7 @@ export const refreshUserData = async (username: string) => {
         userCache.set(username, data);
         return data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -135,7 +167,7 @@ export const registerWebhookToScoreboard = async (scoreboardName: string, url: s
         const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/scoreboard/${scoreboardName}/webhook`, {url});
         return response.data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -151,7 +183,7 @@ export const fetchCategories = async () => {
         categoryCache.set('categories', data);
         return data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -166,7 +198,7 @@ export const fetchChallengesByCategory = async (name: string) => {
         categoryCache.set(name, data);
         return data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -183,7 +215,7 @@ export const fetchChallengeFlaggers = async (name: string, category: string) => 
         challengeCache.set(cacheKey, data);
         return data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -202,7 +234,7 @@ export const fetchScoreboardChallengeFlaggers = async (scoreboardName: string, n
         challengeCache.set(cacheKey, data);
         return data;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
 
@@ -217,6 +249,6 @@ export const fetchTotalUsers = async () => {
         totalUsersCache.set('totalUsers', totalUsers);
         return totalUsers;
     } catch (err) {
-        throw new Error(err.message);
+        throw new Error((err as Error).message);
     }
 };
