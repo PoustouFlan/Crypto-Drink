@@ -7,6 +7,7 @@ const challengeCache = new Map();
 const scoreboardCache = new Map();
 const scoreboardDetailsCache = new Map();
 const categoryCache = new Map();
+const totalUsersCache = new Map();
 
 export const fetchUserData = async (username: string) => {
     if (userCache.has(username)) {
@@ -200,6 +201,21 @@ export const fetchScoreboardChallengeFlaggers = async (scoreboardName: string, n
         const data = response.data;
         challengeCache.set(cacheKey, data);
         return data;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+};
+
+export const fetchTotalUsers = async () => {
+    if (totalUsersCache.has('totalUsers')) {
+        return totalUsersCache.get('totalUsers');
+    }
+
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/total-users`);
+        const totalUsers = response.data;
+        totalUsersCache.set('totalUsers', totalUsers);
+        return totalUsers;
     } catch (err) {
         throw new Error(err.message);
     }

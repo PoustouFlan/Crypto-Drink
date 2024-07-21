@@ -23,29 +23,25 @@ const SolvedChallenges: React.FC<SolvedChallengesProps> = ({solvedChallenges: in
     const [solvedChallenges, setSolvedChallenges] = useState<SolvedChallenge[]>(initialSolvedChallenges);
 
     useEffect(() => {
-        initialSolvedChallenges.forEach(async (challenge) => {
-            try {
-                const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
-                const updatedChallenge = {...challenge, points: challengeDetails.points, loadingPoints: false};
+        // Create a function to fetch and update challenges
+        const fetchAndUpdateChallenges = async () => {
+            const updatedChallenges = await Promise.all(initialSolvedChallenges.map(async (challenge) => {
+                try {
+                    const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
+                    return {...challenge, points: challengeDetails.points, loadingPoints: false};
+                } catch (err) {
+                    console.error(`Failed to fetch details for challenge ${challenge.name}:`, err);
+                    return {...challenge, points: 0, loadingPoints: false};
+                }
+            }));
 
-                setSolvedChallenges(prevChallenges => {
-                    return prevChallenges.map(sc => (sc.name === updatedChallenge.name && sc.category === updatedChallenge.category)
-                        ? updatedChallenge
-                        : sc
-                    );
-                });
-            } catch (err) {
-                console.error(`Failed to fetch details for challenge ${challenge.name}:`, err);
-                const updatedChallenge = {...challenge, points: 0, loadingPoints: false};
+            // Sort challenges by date in descending order
+            updatedChallenges.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-                setSolvedChallenges(prevChallenges => {
-                    return prevChallenges.map(sc => (sc.name === updatedChallenge.name && sc.category === updatedChallenge.category)
-                        ? updatedChallenge
-                        : sc
-                    );
-                });
-            }
-        });
+            setSolvedChallenges(updatedChallenges);
+        };
+
+        fetchAndUpdateChallenges();
     }, [initialSolvedChallenges]);
 
     return (
@@ -65,13 +61,19 @@ const SolvedChallenges: React.FC<SolvedChallengesProps> = ({solvedChallenges: in
                     <tr key={index}>
                         <td>{challenge.date}</td>
                         <td>
-                            <Link to={scoreboardName == null ? `/category/${encodeURIComponent(challenge.category)}`
-                                : `/scoreboard/${scoreboardName}/category/${encodeURIComponent(challenge.category)}`}>{challenge.category}</Link>
+                            <Link to={scoreboardName == null
+                                ? `/category/${encodeURIComponent(challenge.category)}`
+                                : `/scoreboard/${scoreboardName}/category/${encodeURIComponent(challenge.category)}`}>
+                                {challenge.category}
+                            </Link>
                         </td>
                         <td>
                             <Link
-                                to={scoreboardName == null ? `/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`
-                                    : `/scoreboard/${scoreboardName}/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`}>{challenge.name}</Link>
+                                to={scoreboardName == null
+                                    ? `/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`
+                                    : `/scoreboard/${scoreboardName}/category/${encodeURIComponent(challenge.category)}/${encodeURIComponent(challenge.name)}`}>
+                                {challenge.name}
+                            </Link>
                         </td>
                         <td>
                             {challenge.loadingPoints ? (

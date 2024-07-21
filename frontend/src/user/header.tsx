@@ -1,8 +1,9 @@
 // user/header.tsx
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar, faTint} from '@fortawesome/free-solid-svg-icons';
 import Flag from 'react-world-flags'; // Import the Flag component
+import {fetchTotalUsers} from '../api'; // Import the method to fetch total users
 
 interface UserHeaderProps {
     username: string;
@@ -15,6 +16,22 @@ interface UserHeaderProps {
 }
 
 const UserHeader: React.FC<UserHeaderProps> = ({username, joined, rank, country, level, score, first_bloods}) => {
+    const [totalUsers, setTotalUsers] = useState<number | null>(null);
+
+    useEffect(() => {
+        // Fetch total users and update state
+        const getTotalUsers = async () => {
+            try {
+                const total = await fetchTotalUsers();
+                setTotalUsers(total);
+            } catch (err) {
+                console.error('Failed to fetch total users:', err);
+            }
+        };
+
+        getTotalUsers();
+    }, []);
+
     return (
         <div className="container">
             <h1 className="user-title">
@@ -25,7 +42,9 @@ const UserHeader: React.FC<UserHeaderProps> = ({username, joined, rank, country,
             </h1>
             <div className="user-details">
                 <p>Joined: <b>{joined}</b></p>
-                <p>Rank: <b>#{rank}</b></p>
+                <p>Rank: <b>#{rank}
+                    {totalUsers !== null && ` / ${totalUsers}`}
+                </b></p>
             </div>
             <div className="user-level">
                 <p>Level: <b className="red-text">{level}</b></p>
