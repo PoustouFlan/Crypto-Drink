@@ -4,10 +4,10 @@ import './user.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar, faSyncAlt, faTint} from '@fortawesome/free-solid-svg-icons';
 import {fetchChallengeDetails, fetchUserData, refreshUserData} from '../api';
-import ScoreGraph from './graph';
+import ScoreGraph from './graph'; // Adjusted import path
 import UserCompletionRadar from './radar';
 import SolvedChallenges from './solved'; // Import the SolvedChallenges component
-import {useParams} from "react-router-dom";
+import {useParams} from 'react-router-dom';
 
 interface UserInfoProps {
     username: string;
@@ -41,7 +41,6 @@ interface User {
 
 const UserInfo: React.FC<UserInfoProps> = () => {
     const {username} = useParams<{ username: string }>();
-    const {scoreboardName} = useParams<{ scoreboardName: string }>();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -130,8 +129,8 @@ const UserInfo: React.FC<UserInfoProps> = () => {
                                                                     className="red-text"/> {user?.first_bloods}</span>
                 </p>
             </div>
-            <div className={"user-graph"}>
-                {user && <ScoreGraph solvedChallenges={user.solved_challenges.filter(sc => !sc.loadingPoints)}/>}
+            <div className="user-graph">
+                {user && <ScoreGraph users={[user]} singleUser={true}/>} {/* Updated to use ScoreGraph */}
             </div>
             {user && <UserCompletionRadar completion={user.completion} useScore={false}/>}
             {user && <SolvedChallenges solvedChallenges={user.solved_challenges}/>}

@@ -13,7 +13,7 @@ import './info.css';
 
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFlag, faStar, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
-import TopPlayersGraph from './graph'; // Import the TopPlayersGraph component
+import TopPlayersGraph from '../user/graph'; // Adjusted import path
 import {ToastContainer} from 'react-toastify';
 import RegisterPopup from './registerPopup';
 
@@ -47,15 +47,21 @@ const ScoreboardInfo: React.FC = () => {
             for (const user of initialUsers) {
                 try {
                     const userData = await fetchUserData(user.username);
-                    const solvedChallenges = [];
-
-                    for (const challenge of userData.solved_challenges) {
-                        const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
-                        solvedChallenges.push({
-                            date: challenge.date,
-                            points: challengeDetails.points,
-                        });
-                    }
+                    const solvedChallenges = await Promise.all(userData.solved_challenges.map(async (challenge) => {
+                        try {
+                            const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
+                            return {
+                                date: challenge.date,
+                                points: challengeDetails.points,
+                            };
+                        } catch (err) {
+                            console.error(`Failed to fetch details for challenge ${challenge.name}:`, err);
+                            return {
+                                date: challenge.date,
+                                points: 0,
+                            };
+                        }
+                    }));
 
                     setUsers((prevUsers) => {
                         const updatedUsers = prevUsers.map((u) => {
@@ -64,7 +70,7 @@ const ScoreboardInfo: React.FC = () => {
                                     username: userData.username,
                                     score: userData.score,
                                     solvedChallengesCount: userData.solved_challenges.length,
-                                    solvedChallenges,
+                                    solved_challenges: solvedChallenges,
                                     loading: false,
                                 };
                             }
@@ -117,11 +123,19 @@ const ScoreboardInfo: React.FC = () => {
                 try {
                     const refreshedUserData = await refreshUserData(user.username);
                     const solvedChallenges = await Promise.all(refreshedUserData.solved_challenges.map(async (challenge) => {
-                        const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
-                        return {
-                            date: challenge.date,
-                            points: challengeDetails.points,
-                        };
+                        try {
+                            const challengeDetails = await fetchChallengeDetails(challenge.name, challenge.category);
+                            return {
+                                date: challenge.date,
+                                points: challengeDetails.points,
+                            };
+                        } catch (err) {
+                            console.error(`Failed to fetch details for challenge ${challenge.name}:`, err);
+                            return {
+                                date: challenge.date,
+                                points: 0,
+                            };
+                        }
                     }));
 
                     setUsers(prevUsers => prevUsers.map(u =>
@@ -130,7 +144,7 @@ const ScoreboardInfo: React.FC = () => {
                                 username: refreshedUserData.username,
                                 score: refreshedUserData.score,
                                 solvedChallengesCount: refreshedUserData.solved_challenges.length,
-                                solvedChallenges,
+                                solved_challenges: solvedChallenges,
                                 loading: false
                             }
                             : u
@@ -164,14 +178,13 @@ const ScoreboardInfo: React.FC = () => {
         <div id="scoreboard-details-container">
             <div className="box-center">
                 <h1>{scoreboardName} Scoreboard</h1>
-            <button onClick={handleRefreshUsers} className="refresh-button">
-                <FontAwesomeIcon icon={faSync}/>
-            </button>
+                <button onClick={handleRefreshUsers} className="refresh-button">
+                    <FontAwesomeIcon icon={faSync}/>
+                </button>
             </div>
 
             <div className="box-center">
-                <RegisterPopup onRegister={handleRegisterUser}
-                               scoreboardName={scoreboardName}></RegisterPopup>
+                <RegisterPopup onRegister={handleRegisterUser} scoreboardName={scoreboardName}/>
             </div>
             <ToastContainer
                 position="top-right"
@@ -185,36 +198,37 @@ const ScoreboardInfo: React.FC = () => {
             <TopPlayersGraph users={sortedUsers.slice(0, 10)}/> {/* Add the TopPlayersGraph component */}
 
             <div id="leaderboard-title">
-            <h2>Leaderboard</h2>
-            <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
-            Score
-            </span>
+                <h2>Leaderboard</h2>
+                <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
+                    Score
+                </span>
 
-            <span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
-            Solved Challenges
-            </span>
+                <span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
+                    Solved Challenges
+                </span>
             </div>
             <ol id="scoreboard-table">
-            {sortedUsers.map((user, index) => (
-                <li key={index}>
-                    <div className="player-index">{("0" + (index + 1)).slice(-2)}</div>
-                    <div className="player-info">
-                        <Link to={`/scoreboard/${scoreboardName}/user/${user.username}`}
-                              className="user-link">{user.username}</Link>
-                    <div className="player-info-stats">
-                    <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
-                        {user.loading ? 'Loading...' : user.score}
-                        </span>
-                    <span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
-                        {user.loading ? 'Loading...' : user.solvedChallengesCount}
-                        </span>
-                    </div>
-                    </div>
+                {sortedUsers.map((user, index) => (
+                    <li key={index}>
+                        <div className="player-index">{("0" + (index + 1)).slice(-2)}</div>
+                        <div className="player-info">
+                            <Link to={`/scoreboard/${scoreboardName}/user/${user.username}`} className="user-link">
+                                {user.username}
+                            </Link>
+                            <div className="player-info-stats">
+                                <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
+                                    {user.loading ? 'Loading...' : user.score}
+                                </span>
+                                <span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
+                                    {user.loading ? 'Loading...' : user.solvedChallengesCount}
+                                </span>
+                            </div>
+                        </div>
                         <button onClick={() => handleDeleteUser(user.username)} className="delete-button">
                             <FontAwesomeIcon icon={faTrash}/>
                         </button>
-                </li>
-            ))}
+                    </li>
+                ))}
             </ol>
         </div>
     );

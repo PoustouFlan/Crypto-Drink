@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Line} from 'react-chartjs-2';
-import "./graph.css";
+import "../user/graph.css";
 import {
     CategoryScale,
     Chart as ChartJS,
