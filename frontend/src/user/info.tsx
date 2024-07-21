@@ -2,11 +2,12 @@
 import React, {useEffect, useState} from 'react';
 import './user.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faStar, faSyncAlt, faTint} from '@fortawesome/free-solid-svg-icons';
+import {faSyncAlt} from '@fortawesome/free-solid-svg-icons';
 import {fetchChallengeDetails, fetchUserData, refreshUserData} from '../api';
 import ScoreGraph from './graph'; // Adjusted import path
 import UserCompletionRadar from './radar';
 import SolvedChallenges from './solved'; // Import the SolvedChallenges component
+import UserHeader from './header'; // Import UserHeader
 import {useParams} from 'react-router-dom';
 
 interface UserInfoProps {
@@ -110,30 +111,27 @@ const UserInfo: React.FC<UserInfoProps> = () => {
 
     return (
         <div className="container">
-            <h1 className="user-title">
-                {user?.username}
-                <button className="refresh-button" onClick={handleRefresh}>
-                    <FontAwesomeIcon icon={faSyncAlt}/>
-                </button>
-            </h1>
-            <div className="user-details">
-                <p>Joined: <b>{user?.joined}</b></p>
-                <p>Rank: <b>#{user?.rank}</b></p>
-                <p>Country: <b>{user?.country}</b></p>
-            </div>
-            <div className="user-level">
-                <p>Level: <b className="red-text">{user?.level}</b></p>
-                <p>
-                    <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/> {user?.score}</span>
-                    <span className="icon-wrapper"><FontAwesomeIcon icon={faTint}
-                                                                    className="red-text"/> {user?.first_bloods}</span>
-                </p>
-            </div>
-            <div className="user-graph">
-                {user && <ScoreGraph users={[user]} singleUser={true}/>} {/* Updated to use ScoreGraph */}
-            </div>
-            {user && <UserCompletionRadar completion={user.completion} useScore={false}/>}
-            {user && <SolvedChallenges solvedChallenges={user.solved_challenges}/>}
+            {user && (
+                <>
+                    <UserHeader
+                        username={user.username}
+                        joined={user.joined}
+                        rank={user.rank}
+                        country={user.country}
+                        level={user.level}
+                        score={user.score}
+                        first_bloods={user.first_bloods}
+                    />
+                    <button className="refresh-button" onClick={handleRefresh}>
+                        <FontAwesomeIcon icon={faSyncAlt}/>
+                    </button>
+                    <div className="user-graph">
+                        <ScoreGraph users={[user]} singleUser={true}/>
+                    </div>
+                    <UserCompletionRadar completion={user.completion} useScore={false}/>
+                    <SolvedChallenges solvedChallenges={user.solved_challenges}/>
+                </>
+            )}
         </div>
     );
 };

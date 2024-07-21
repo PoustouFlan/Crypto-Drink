@@ -10,18 +10,19 @@ import {
     registerUserToScoreboard
 } from '../api';
 import './info.css';
-
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFlag, faStar, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import TopPlayersGraph from '../user/graph'; // Adjusted import path
 import {ToastContainer} from 'react-toastify';
 import RegisterPopup from './registerPopup';
+import WorldFlags from 'react-world-flags'; // Import flag component if using a library
 
 interface User {
     username: string;
     score?: number;
     solvedChallengesCount?: number;
-    solvedChallenges?: { date: string; points: number }[]; // Add solvedChallenges for graph
+    solvedChallenges?: { date: string; points: number }[];
+    countryCode?: string; // Add country code
     loading: boolean;
 }
 
@@ -31,7 +32,6 @@ const ScoreboardInfo: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
-    // Function to fetch the scoreboard details and user data
     const fetchData = useCallback(async () => {
         try {
             const scoreboardInfo = await fetchScoreboardDetails(scoreboardName);
@@ -43,7 +43,6 @@ const ScoreboardInfo: React.FC = () => {
             setUsers(initialUsers);
             setLoading(false);
 
-            // Fetch user data for each user
             for (const user of initialUsers) {
                 try {
                     const userData = await fetchUserData(user.username);
@@ -71,6 +70,7 @@ const ScoreboardInfo: React.FC = () => {
                                     score: userData.score,
                                     solvedChallengesCount: userData.solved_challenges.length,
                                     solved_challenges: solvedChallenges,
+                                    countryCode: userData.country, // Add country code
                                     loading: false,
                                 };
                             }
@@ -82,7 +82,6 @@ const ScoreboardInfo: React.FC = () => {
                     console.error(`Failed to fetch data for user ${user.username}:`, err);
                 }
             }
-
         } catch (err) {
             setError(err as Error);
             setLoading(false);
@@ -93,11 +92,10 @@ const ScoreboardInfo: React.FC = () => {
         fetchData();
     }, [fetchData]);
 
-    // Function to handle user registration and refresh user list
     const handleRegisterUser = async (username: string) => {
         try {
             await registerUserToScoreboard(scoreboardName, username);
-            await fetchData(); // Refresh the user list
+            await fetchData();
         } catch (err) {
             setError(err as Error);
         }
@@ -112,13 +110,10 @@ const ScoreboardInfo: React.FC = () => {
         }
     };
 
-    // Function to handle refreshing all users with PUT request
     const handleRefreshUsers = async () => {
-        // Set all users to loading
         setUsers(prevUsers => prevUsers.map(user => ({...user, loading: true})));
 
         try {
-            // Use Promise.all to handle multiple promises in parallel
             await Promise.all(users.map(async (user) => {
                 try {
                     const refreshedUserData = await refreshUserData(user.username);
@@ -145,6 +140,7 @@ const ScoreboardInfo: React.FC = () => {
                                 score: refreshedUserData.score,
                                 solvedChallengesCount: refreshedUserData.solved_challenges.length,
                                 solved_challenges: solvedChallenges,
+                                countryCode: refreshedUserData.country, // Add country code
                                 loading: false
                             }
                             : u
@@ -153,7 +149,7 @@ const ScoreboardInfo: React.FC = () => {
                     console.error(`Failed to refresh data for user ${user.username}:`, err);
                     setUsers(prevUsers => prevUsers.map(u =>
                         u.username === user.username
-                            ? {...u, loading: false} // Mark as not loading even if there was an error
+                            ? {...u, loading: false}
                             : u
                     ));
                 }
@@ -163,7 +159,6 @@ const ScoreboardInfo: React.FC = () => {
         }
     };
 
-    // Sort users: loaded users first, by score descending
     const sortedUsers = users.sort((a, b) => {
         if (a.loading && !b.loading) return 1;
         if (!a.loading && b.loading) return -1;
@@ -195,14 +190,13 @@ const ScoreboardInfo: React.FC = () => {
                 theme="dark"
             />
 
-            <TopPlayersGraph users={sortedUsers.slice(0, 10)}/> {/* Add the TopPlayersGraph component */}
+            <TopPlayersGraph users={sortedUsers.slice(0, 10)}/>
 
             <div id="leaderboard-title">
                 <h2>Leaderboard</h2>
                 <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
                     Score
                 </span>
-
                 <span className="icon-wrapper"><FontAwesomeIcon icon={faFlag} className="red-text"/>
                     Solved Challenges
                 </span>
@@ -212,9 +206,15 @@ const ScoreboardInfo: React.FC = () => {
                     <li key={index}>
                         <div className="player-index">{("0" + (index + 1)).slice(-2)}</div>
                         <div className="player-info">
-                            <Link to={`/scoreboard/${scoreboardName}/user/${user.username}`} className="user-link">
-                                {user.username}
-                            </Link>
+                            <div className="user-name">
+                                <Link to={`/scoreboard/${scoreboardName}/user/${user.username}`} className="user-link">
+                                    {user.countryCode && <WorldFlags code={user.countryCode} style={{
+                                        width: '24px',
+                                        height: '16px'
+                                    }}/>} {/* Display flag */}
+                                    {user.username}
+                                </Link>
+                            </div>
                             <div className="player-info-stats">
                                 <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
                                     {user.loading ? 'Loading...' : user.score}
