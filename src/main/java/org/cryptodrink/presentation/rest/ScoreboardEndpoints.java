@@ -119,7 +119,7 @@ public class ScoreboardEndpoints {
     }
 
     @Path("/{name}/webhook")
-    @POST
+    @PUT
     public Response addWebhookToScoreboard(@PathParam("name") String name, ScoreboardWebhookRequest request)
     {
         Optional<ScoreboardEntity> scoreboard = scoreboardService.find(name);
