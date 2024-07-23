@@ -3,8 +3,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-node_modules
-
 ### IntelliJ IDEA ###
 .idea
 *.iws
