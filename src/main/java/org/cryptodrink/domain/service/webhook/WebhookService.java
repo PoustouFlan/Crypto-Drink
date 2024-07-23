@@ -6,6 +6,7 @@ import org.cryptodrink.domain.service.ConfigService;
 import org.cryptodrink.domain.service.ScoreboardService;
 import org.cryptodrink.domain.service.UserService;
 import org.cryptodrink.utils.I18nUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,9 @@ public class WebhookService {
     ScoreboardService scoreboardService;
     @Inject
     ConfigService configService;
+
+    @ConfigProperty(name = "cryptodrink.frontend-url")
+    String frontendUrl;
 
     public void announce(SolvedChallengeEntity solve)
     {
@@ -60,12 +64,12 @@ public class WebhookService {
             headerField.setName("Flagger");
             headerField.setValue(String.format(
                     """
-                                        :flag_fr: [%s](https://www.crypto-drink.com/scoreboard/%s/user/%s)
+                                                :flag_fr: [%s](%s/scoreboard/%s/user/%s)
                         :star: %d\t:triangular_flag_on_post: %d
                         Niveau : %d
                                         Rang : #%d / %d
                     """,
-                    user.getUsername(), scoreboard.getName(), user.getUsername(),
+                    user.getUsername(), frontendUrl, scoreboard.getName(), user.getUsername(),
                     user.getScore(), userService.getSolvedChallenges(user).size(),
                     user.getLevel(),
                     user.getRank(), configService.getTotalUser()
@@ -75,16 +79,16 @@ public class WebhookService {
             field.setName(challenge.getCategory().getName());
             field.setValue(String.format(
                     """
-                                        [%s](https://www.crypto-drink.com/scoreboard/%s/category/%s/%s)
+                                                [%s](%s/scoreboard/%s/category/%s/%s)
                         :star: %d\t:triangular_flag_on_post: %d
-                                        %s :triangular_flag_on_post: du scoreboard [%s](https://www.crypto-drink.com/scoreboard/%s)
+                                                %s :triangular_flag_on_post: du scoreboard [%s](%s/scoreboard/%s)
                     """,
-                    challenge.getName(), scoreboard.getName(),
+                    challenge.getName(), frontendUrl, scoreboard.getName(),
                     URLEncoder.encode(challenge.getCategory().getName(), StandardCharsets.UTF_8),
                     URLEncoder.encode(challenge.getName(), StandardCharsets.UTF_8),
                     challenge.getPoints(), challenge.getSolves(),
                     I18nUtils.toOrdinal(scoreboardService.countSolvers(scoreboard, challenge)),
-                    scoreboard.getName(), scoreboard.getName()
+                    scoreboard.getName(), frontendUrl, scoreboard.getName()
             ));
             field.setInline(false);
 
