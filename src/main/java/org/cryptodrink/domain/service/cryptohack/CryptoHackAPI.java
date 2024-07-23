@@ -4,6 +4,7 @@ package org.cryptodrink.domain.service.cryptohack;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cryptodrink.converter.ChallengeConverter;
+import org.cryptodrink.converter.SolvedChallengeConverter;
 import org.cryptodrink.converter.UserConverter;
 import org.cryptodrink.data.model.CategoryModel;
 import org.cryptodrink.data.model.ChallengeModel;
@@ -35,6 +36,9 @@ import java.util.Optional;
 public class CryptoHackAPI {
     private static final Logger logger = LoggerFactory.getLogger(CryptoHackAPI.class);
     private static final String API_URL = "https://cryptohack.org/api/user/";
+
+    @Inject
+    SolvedChallengeConverter solvedChallengeConverter;
 
     @Inject
     UserRepository users;
@@ -179,9 +183,6 @@ public class CryptoHackAPI {
         solvedChallenges.addAll(newSolved);
         users.persist(user);
 
-        toAnnounce.forEach(solved -> webhookService.announce(
-                userConverter.convert(user),
-                challengeConverter.convert(solved.getChallenge())
-        ));
+        toAnnounce.forEach(solved -> webhookService.announce(solvedChallengeConverter.convert(solved)));
     }
 }
