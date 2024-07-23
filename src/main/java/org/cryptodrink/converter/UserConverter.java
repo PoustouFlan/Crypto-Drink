@@ -5,6 +5,7 @@ import org.cryptodrink.domain.entity.SolvedChallengeEntity;
 import org.cryptodrink.domain.entity.UserEntity;
 import org.cryptodrink.domain.service.UserService;
 import org.cryptodrink.presentation.rest.response.UserResponse;
+import org.cryptodrink.utils.TimeString;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -48,7 +49,7 @@ public class UserConverter {
                 solved.stream().map(solvedChallengeConverter::convertChallenge).toList(),
                 user.getUsername(),
                 user.getWebsite(),
-                user.getLastRefreshed().toString()
+                TimeString.convertToUTCString(user.getLastRefreshed())
         );
     }
 }
