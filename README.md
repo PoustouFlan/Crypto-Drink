@@ -1,5 +1,7 @@
 # CryptoDrink [Work In Progress!]
 
+An instance of CryptoDrink is hosted at https://www.crypto-drink.com !
+
 This is a complete rework of the previous Discord Bot [CryptoDrink](https://github.com/PoustouFlan/Crypto-Drink-Deprecated).
 CryptoDrink allows anybody to create a local [CryptoHack](https://cryptohack.org) scoreboard with friends.
 The scoreboards then can be linked to some Discord WebHooks, in order to receive automatic announcements when any user in the scoreboard solves a new challenge.
@@ -28,6 +30,8 @@ Preview:
 ## Website [Work in Progress]
 A frontend features a convenient visualization of scoreboards and user data.
 The frontend is coded using Vite/React/TypeScript, and should be started with npm.
+
+Create a scoreboard at https://www.crypto-drink.com/scoreboard, then register the CryptoHack users you want to appear on the scoreboard.
 
 Preview:
 
