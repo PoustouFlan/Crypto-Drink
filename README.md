@@ -19,6 +19,11 @@ The proxy is entirely coded in Java with Maven + Quarkus in the folder `src`, fo
 It uses a postgres database named `cryptodrink` which can be configured in the resources.
 The backend should be started with maven.
 
+```bash
+mvn clean package -Dquarkus.package.type=uber-jar
+java -jar target/CryptoDrink2-1.0-runner.jar
+```
+
 ## Webhook
 Flag announcement is now managed thanks to webhooks.
 This is directly implemented in the backend: when the data regarding a user is updated, all new solved challenges are announced through all webhooks of all scoreboards the user belongs to.
@@ -30,6 +35,12 @@ Preview:
 ## Website [Work in Progress]
 A frontend features a convenient visualization of scoreboards and user data.
 The frontend is coded using Vite/React/TypeScript, and should be started with npm.
+
+```bash
+cd frontend
+npm install
+npm run build
+```
 
 Create a scoreboard at https://www.crypto-drink.com/scoreboard, then register the CryptoHack users you want to appear on the scoreboard.
 
