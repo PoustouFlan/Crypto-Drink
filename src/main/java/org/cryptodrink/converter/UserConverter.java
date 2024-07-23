@@ -29,7 +29,8 @@ public class UserConverter {
                 user.getLevel(),
                 user.getRank(),
                 user.getScore(),
-                user.getWebsite()
+                user.getWebsite(),
+                user.getLastRefreshed()
         );
     }
 
@@ -46,7 +47,8 @@ public class UserConverter {
                 user.getScore(),
                 solved.stream().map(solvedChallengeConverter::convertChallenge).toList(),
                 user.getUsername(),
-                user.getWebsite()
+                user.getWebsite(),
+                user.getLastRefreshed().toString()
         );
     }
 }

@@ -4,6 +4,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar, faTint} from '@fortawesome/free-solid-svg-icons';
 import Flag from 'react-world-flags'; // Import the Flag component
 import {fetchTotalUsers} from '../api'; // Import the method to fetch total users
+import {formatDistanceToNow, parseISO} from 'date-fns'; // Import date-fns methods
 
 interface UserHeaderProps {
     username?: string;
@@ -13,9 +14,19 @@ interface UserHeaderProps {
     level?: number;
     score?: number;
     first_bloods?: number;
+    last_refreshed?: string; // Add last_refreshed to props
 }
 
-const UserHeader: React.FC<UserHeaderProps> = ({username, joined, rank, country, level, score, first_bloods}) => {
+const UserHeader: React.FC<UserHeaderProps> = ({
+                                                   username,
+                                                   joined,
+                                                   rank,
+                                                   country,
+                                                   level,
+                                                   score,
+                                                   first_bloods,
+                                                   last_refreshed
+                                               }) => {
     const [totalUsers, setTotalUsers] = useState<number | null>(null);
 
     useEffect(() => {
@@ -32,6 +43,8 @@ const UserHeader: React.FC<UserHeaderProps> = ({username, joined, rank, country,
         getTotalUsers();
     }, []);
 
+    const lastRefreshedText = last_refreshed ? `Last refreshed: ${formatDistanceToNow(parseISO(last_refreshed))} ago` : '';
+
     return (
         <div className="container">
             <h1 className="user-title">
@@ -45,6 +58,9 @@ const UserHeader: React.FC<UserHeaderProps> = ({username, joined, rank, country,
                 <p>Rank: <b>#{rank}
                     {totalUsers !== null && ` / ${totalUsers}`}
                 </b></p>
+                {last_refreshed && (
+                    <p>{lastRefreshedText}</p>
+                )}
             </div>
             <div className="user-level">
                 <p>Level: <b className="red-text">{level}</b></p>

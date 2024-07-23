@@ -103,6 +103,7 @@ const UserInfo: React.FC = () => {
                         level={user.level}
                         score={user.score}
                         first_bloods={user.first_bloods}
+                        last_refreshed={user.last_refreshed}
                     />
                     <button className="refresh-button" onClick={handleRefresh}>
                         <FontAwesomeIcon icon={faSyncAlt}/>

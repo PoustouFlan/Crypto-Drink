@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,4 +30,6 @@ public class UserModel {
 
     @ManyToMany(mappedBy = "users")
     private List<ScoreboardModel> scoreboards = new ArrayList<>();
+
+    private LocalDateTime lastRefreshed;
 }

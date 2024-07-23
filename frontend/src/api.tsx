@@ -39,6 +39,7 @@ export interface User {
         score: number;
         total_score: number;
     }[];
+    last_refreshed?: string;
 }
 
 export const fetchUserData = async (username: string): Promise<User> => {

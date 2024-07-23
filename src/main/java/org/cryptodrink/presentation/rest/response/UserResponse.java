@@ -38,4 +38,7 @@ public class UserResponse {
 
     @JsonProperty("website")
     private String website;
+
+    @JsonProperty("last_refreshed")
+    private String lastRefreshed;
 }

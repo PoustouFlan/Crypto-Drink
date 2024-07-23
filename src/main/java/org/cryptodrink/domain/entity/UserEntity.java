@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -19,4 +18,5 @@ public class UserEntity {
     private Integer rank;
     private Integer score;
     private String website;
+    private LocalDateTime lastRefreshed;
 }

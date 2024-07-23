@@ -6,14 +6,6 @@
         </encoder>
     </appender>
 
-    <logger name="org.cryptodrink.domain.service.cryptohack.CryptoHackAPI" level="DEBUG" additivity="false">
-        <appender-ref ref="STDOUT" />
-    </logger>
-
-    <logger name="org.cryptodrink.domain.service.UserService" level="DEBUG" additivity="false">
-        <appender-ref ref="STDOUT" />
-    </logger>
-
     <root level="info">
         <appender-ref ref="STDOUT" />
     </root>

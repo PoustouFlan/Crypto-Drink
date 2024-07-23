@@ -64,11 +64,12 @@ public class WebhookService {
             headerField.setName("Flagger");
             headerField.setValue(String.format(
                     """
-                                                :flag_fr: [%s](%s/scoreboard/%s/user/%s)
+                                :flag_%s: [%s](%s/scoreboard/%s/user/%s)
                         :star: %d\t:triangular_flag_on_post: %d
                         Niveau : %d
-                                        Rang : #%d / %d
+                                Rang : #%d / %d
                     """,
+                    user.getCountry(),
                     user.getUsername(), frontendUrl, scoreboard.getName(), user.getUsername(),
                     user.getScore(), userService.getSolvedChallenges(user).size(),
                     user.getLevel(),
@@ -79,9 +80,9 @@ public class WebhookService {
             field.setName(challenge.getCategory().getName());
             field.setValue(String.format(
                     """
-                                                [%s](%s/scoreboard/%s/category/%s/%s)
+                                [%s](%s/scoreboard/%s/category/%s/%s)
                         :star: %d\t:triangular_flag_on_post: %d
-                                                %s :triangular_flag_on_post: du scoreboard [%s](%s/scoreboard/%s)
+                                %s :triangular_flag_on_post: du scoreboard [%s](%s/scoreboard/%s)
                     """,
                     challenge.getName(), frontendUrl, scoreboard.getName(),
                     URLEncoder.encode(challenge.getCategory().getName(), StandardCharsets.UTF_8),
