@@ -11,7 +11,6 @@ import org.cryptodrink.domain.entity.SolvedChallengeEntity;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class ChallengeService {
@@ -24,12 +23,14 @@ public class ChallengeService {
     @Inject
     CategoryService categoryService;
 
-    public Optional<ChallengeEntity> find(String category, String name)
+    public ChallengeEntity find(String category, String name)
     {
-        return challenges
+        ChallengeModel challenge = challenges
                 .find("category.name = ?1 AND name = ?2", category, name)
-                .firstResultOptional()
-                .map(challengeConverter::convert);
+                .firstResult();
+        if (challenge == null)
+            return null;
+        return challengeConverter.convert(challenge);
     }
 
     public List<SolvedChallengeEntity> getFlaggers(ChallengeEntity challenge)

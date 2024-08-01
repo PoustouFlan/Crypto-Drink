@@ -15,6 +15,10 @@ public class ScoreboardModel {
     private Long id;
     private String name;
 
+    @OneToOne
+    private UserModel owner;
+    private Boolean isPublic;
+
     @ManyToMany
     @JoinTable(
             name = "scoreboard_users",

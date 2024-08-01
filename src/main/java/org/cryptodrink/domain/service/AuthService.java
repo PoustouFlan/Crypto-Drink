@@ -87,8 +87,10 @@ public class AuthService {
     }
 
     private Boolean checkTokenOnCryptoHack(String username, String token) {
-        Optional<UserEntity> user = userService.find(username, false, true);
-        return user.map(userEntity -> userEntity.getWebsite().equals(token)).orElse(false);
+        UserEntity user = userService.find(username, false, true);
+        if (user == null)
+            return false;
+        return user.getWebsite().equals(token);
     }
 
     private String generateRandomValue() {

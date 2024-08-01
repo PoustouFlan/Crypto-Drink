@@ -1,5 +1,8 @@
 package org.cryptodrink.domain.service;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.cryptodrink.converter.ScoreboardConverter;
 import org.cryptodrink.converter.SolvedChallengeConverter;
 import org.cryptodrink.converter.UserConverter;
@@ -11,11 +14,14 @@ import org.cryptodrink.presentation.rest.response.CategoryCompletionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.SecretKey;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class UserService {
@@ -33,25 +39,27 @@ public class UserService {
     ScoreboardConverter scoreboardConverter;
     @Inject
     CategoryService categoryService;
+    @Inject
+    AuthService authService;
 
-    public Optional<UserEntity> find(String username, Boolean databaseAllowed, Boolean apiAllowed)
+    public UserEntity find(String username, Boolean databaseAllowed, Boolean apiAllowed)
     {
-        Optional<UserModel> user = Optional.empty();
+        UserModel user = null;
         if (databaseAllowed) {
             logger.debug("Looking for {} in database", username);
             user = users
                     .find("LOWER(username)", username.toLowerCase())
-                    .firstResultOptional();
+                    .firstResult();
         }
-        if (user.isEmpty()) {
+        if (user == null) {
             logger.debug("User {} not found in database", username);
             if (apiAllowed) {
                 cryptoHack.updateUserInfo(username);
                 return find(username, true, false);
             }
-            return Optional.empty();
+            return null;
         }
-        return Optional.of(userConverter.convert(user.get()));
+        return userConverter.convert(user);
     }
 
     public List<SolvedChallengeEntity> getSolvedChallenges(UserEntity user)
@@ -90,5 +98,24 @@ public class UserService {
         }
 
         return completion;
+    }
+
+    public UserEntity getUserFromToken(String token) {
+        try {
+            String key = authService.getHMACKey();
+            SecretKey signingKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
+            Claims claims = Jwts.parser()
+                    .verifyWith(signingKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            String username = claims.getSubject();
+
+            return find(username, true, false);
+        } catch (Exception e) {
+            logger.error("Invalid JWT token");
+            return null;
+        }
     }
 }

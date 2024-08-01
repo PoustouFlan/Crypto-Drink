@@ -31,10 +31,10 @@ public class ChallengeEndpoints {
         String category = request.getCategory();
         String name = request.getName();
 
-        Optional<ChallengeEntity> challenge = challengeService.find(category, name);
-        if (challenge.isEmpty())
+        ChallengeEntity challenge = challengeService.find(category, name);
+        if (challenge == null)
             return Response.status(Response.Status.NOT_FOUND).entity("Challenge not found").build();
-        ChallengeResponse response = challengeConverter.convert(challenge.get());
+        ChallengeResponse response = challengeConverter.convert(challenge);
         return Response.ok().entity(response).build();
     }
 

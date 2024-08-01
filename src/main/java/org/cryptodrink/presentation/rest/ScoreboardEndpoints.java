@@ -17,10 +17,11 @@ import org.cryptodrink.presentation.rest.response.ScoreboardResponse;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Path("/api/scoreboard")
@@ -44,113 +45,195 @@ public class ScoreboardEndpoints {
 
     private static final Pattern VALID_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9_.~-]+$");
 
+    // Utility method to get authenticated user from the JWT token
+    private UserEntity getAuthenticatedUser(HttpHeaders headers) {
+        String token = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7); // Remove "Bearer " prefix
+            return userService.getUserFromToken(token); // Implement this method to decode JWT and get UserEntity
+        }
+        return null;
+    }
+
     @Path("/{name}")
     @GET
-    public Response getScoreboard(@PathParam("name") String name)
-    {
-        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(name);
-        if (scoreboard.isEmpty())
-            return Response.status(Response.Status.NOT_FOUND).entity("scoreboard not found").build();
-        ScoreboardResponse response = scoreboardConverter.convert(scoreboard.get());
+    public Response getScoreboard(@PathParam("name") String name, @Context HttpHeaders headers) {
+        UserEntity authenticatedUser = getAuthenticatedUser(headers);
+
+        ScoreboardEntity scoreboard = scoreboardService.find(name);
+        if (scoreboard == null)
+            return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
+
+        if (!scoreboard.getIsPublic() && (!scoreboard.getOwner().equals(authenticatedUser))) {
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build();
+        }
+
+        ScoreboardResponse response = scoreboardConverter.convert(scoreboard);
         return Response.ok().entity(response).build();
     }
 
     @Path("/{name}")
     @DELETE
-    public Response deleteScoreboard(@PathParam("name") String name) {
-        Optional<ScoreboardEntity> scoreboard = scoreboardService.findAndDelete(name);
-        if (scoreboard.isEmpty())
-            return Response.status(Response.Status.NOT_FOUND).entity("scoreboard not found").build();
-        ScoreboardResponse response = scoreboardConverter.convert(scoreboard.get());
+    public Response deleteScoreboard(@PathParam("name") String name, @Context HttpHeaders headers) {
+        UserEntity authenticatedUser = getAuthenticatedUser(headers);
+        if (authenticatedUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Unauthorized").build();
+        }
+
+        ScoreboardEntity scoreboard = scoreboardService.find(name);
+        if (scoreboard == null)
+            return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
+
+        if (!scoreboard.getOwner().equals(authenticatedUser)) {
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build();
+        }
+
+        ScoreboardEntity deletedScoreboard = scoreboardService.findAndDelete(name);
+        if (deletedScoreboard == null)
+            return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
+
+        ScoreboardResponse response = scoreboardConverter.convert(deletedScoreboard);
         return Response.ok().entity(response).build();
     }
 
     @Path("/")
     @GET
-    public Response getAllScoreboards() {
+    public Response getAllScoreboards(@Context HttpHeaders headers) {
+        UserEntity authenticatedUser = getAuthenticatedUser(headers);
+
         List<ScoreboardEntity> scoreboards = scoreboardService.getAll();
-        List<ScoreboardResponse> response = scoreboards.stream().map(scoreboardConverter::convert).toList();
+        List<ScoreboardResponse> response = scoreboards.stream()
+                .filter(scoreboard -> scoreboard.getIsPublic() || (scoreboard.getOwner().equals(authenticatedUser)))
+                .map(scoreboardConverter::convert)
+                .toList();
+
         return Response.ok().entity(response).build();
     }
 
     @Path("/")
     @POST
-    public Response createScoreboard(ScoreboardCreateRequest request)
-    {
+    public Response createScoreboard(ScoreboardCreateRequest request, @Context HttpHeaders headers) {
+        UserEntity authenticatedUser = getAuthenticatedUser(headers);
+        if (authenticatedUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Unauthorized").build();
+        }
+
         if (!VALID_NAME_PATTERN.matcher(request.getName()).matches())
             return Response.status(Response.Status.BAD_REQUEST).entity("Invalid scoreboard name").build();
-        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(request.getName());
-        if (scoreboard.isPresent())
+
+        ScoreboardEntity scoreboard = scoreboardService.find(request.getName());
+        if (scoreboard != null)
             return Response.status(Response.Status.CONFLICT).entity("Scoreboard already exists").build();
-        scoreboard = scoreboardService.create(request.getName());
-        ScoreboardResponse response = scoreboardConverter.convert(scoreboard.get());
+
+        ScoreboardEntity createdScoreboard = scoreboardService.create(request.getName(), authenticatedUser);
+        ScoreboardResponse response = scoreboardConverter.convert(createdScoreboard);
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
     @Path("/{name}/register")
     @POST
-    public Response subscribeToScoreboard(@PathParam("name") String name, ScoreboardSubscribeRequest request)
-    {
-        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(name);
-        if (scoreboard.isEmpty())
+    public Response subscribeToScoreboard(@PathParam("name") String name, ScoreboardSubscribeRequest request, @Context HttpHeaders headers) {
+        UserEntity authenticatedUser = getAuthenticatedUser(headers);
+        if (authenticatedUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Unauthorized").build();
+        }
+
+        ScoreboardEntity scoreboard = scoreboardService.find(name);
+        if (scoreboard == null)
             return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
-        Optional<UserEntity> user = userService.find(request.getUsername(), true, true);
-        if (user.isEmpty())
+
+        if (!scoreboard.getOwner().equals(authenticatedUser)) {
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build();
+        }
+
+        UserEntity user = userService.find(request.getUsername(), true, true);
+        if (user == null)
             return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-        ScoreboardEntity newScoreboard = scoreboardService.subscribeUser(scoreboard.get(), user.get());
-        if (scoreboard.get().equals(newScoreboard))
+
+        ScoreboardEntity newScoreboard = scoreboardService.subscribeUser(scoreboard, user);
+        if (scoreboard.equals(newScoreboard))
             return Response.status(Response.Status.CONFLICT).entity("User already in scoreboard").build();
+
         return Response.ok(scoreboardConverter.convert(newScoreboard)).build();
     }
 
     @Path("/{name}/user/{username}")
     @DELETE
-    public Response removeFromScoreboard(@PathParam("name") String name, @PathParam("username") String username) {
-        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(name);
-        if (scoreboard.isEmpty())
+    public Response removeFromScoreboard(@PathParam("name") String name, @PathParam("username") String username, @Context HttpHeaders headers) {
+        UserEntity authenticatedUser = getAuthenticatedUser(headers);
+        if (authenticatedUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Unauthorized").build();
+        }
+
+        ScoreboardEntity scoreboard = scoreboardService.find(name);
+        if (scoreboard == null)
             return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
-        Optional<UserEntity> user = userService.find(username, true, true);
-        if (user.isEmpty())
+
+        if (!scoreboard.getOwner().equals(authenticatedUser)) {
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build();
+        }
+
+        UserEntity user = userService.find(username, true, true);
+        if (user == null)
             return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-        ScoreboardEntity newScoreboard = scoreboardService.removeUser(scoreboard.get(), user.get());
-        if (scoreboard.get().equals(newScoreboard))
+
+        ScoreboardEntity newScoreboard = scoreboardService.removeUser(scoreboard, user);
+        if (scoreboard.equals(newScoreboard))
             return Response.status(Response.Status.NOT_FOUND).entity("User not in scoreboard").build();
+
         return Response.ok(scoreboardConverter.convert(newScoreboard)).build();
     }
 
     @Path("/{name}/webhook")
     @PUT
-    public Response addWebhookToScoreboard(@PathParam("name") String name, ScoreboardWebhookRequest request)
-    {
-        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(name);
-        if (scoreboard.isEmpty())
+    public Response addWebhookToScoreboard(@PathParam("name") String name, ScoreboardWebhookRequest request, @Context HttpHeaders headers) {
+        UserEntity authenticatedUser = getAuthenticatedUser(headers);
+        if (authenticatedUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Unauthorized").build();
+        }
+
+        ScoreboardEntity scoreboard = scoreboardService.find(name);
+        if (scoreboard == null)
             return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
-        Boolean changed = scoreboardService.addWebhook(scoreboard.get(), request.getUrl());
+
+        if (!scoreboard.getOwner().equals(authenticatedUser)) {
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build();
+        }
+
+        Boolean changed = scoreboardService.addWebhook(scoreboard, request.getUrl());
         if (!changed)
             return Response.status(Response.Status.CONFLICT).entity("Webhook already registered").build();
-        return Response.ok(scoreboardConverter.convert(scoreboard.get())).build();
+
+        return Response.ok(scoreboardConverter.convert(scoreboard)).build();
     }
 
     @Path("/{scoreboardName}/challenge")
     @GET
-    public Response getChallengeScoreboard(@PathParam("scoreboardName") String scoreboardName, ChallengeRequest request) {
-        Optional<ScoreboardEntity> scoreboard = scoreboardService.find(scoreboardName);
-        if (scoreboard.isEmpty())
+    public Response getChallengeScoreboard(@PathParam("scoreboardName") String scoreboardName, ChallengeRequest request, @Context HttpHeaders headers) {
+        UserEntity authenticatedUser = getAuthenticatedUser(headers);
+
+        ScoreboardEntity scoreboard = scoreboardService.find(scoreboardName);
+        if (scoreboard == null)
             return Response.status(Response.Status.NOT_FOUND).entity("Scoreboard not found").build();
+
+        if (!scoreboard.getIsPublic() && (!scoreboard.getOwner().equals(authenticatedUser))) {
+            return Response.status(Response.Status.FORBIDDEN).entity("Access denied").build();
+        }
 
         String category = request.getCategory();
         String name = request.getName();
 
-        Optional<ChallengeEntity> challenge = challengeService.find(category, name);
-        if (challenge.isEmpty())
+        ChallengeEntity challenge = challengeService.find(category, name);
+        if (challenge == null)
             return Response.status(Response.Status.NOT_FOUND).entity("Challenge not found").build();
-        ChallengeResponse response = challengeConverter.convert(challenge.get(), scoreboard.get());
+
+        ChallengeResponse response = challengeConverter.convert(challenge, scoreboard);
         return Response.ok().entity(response).build();
     }
 
     @Path("/{scoreboardName}/challenge")
     @POST
-    public Response getChallengeScoreboardPost(@PathParam("scoreboardName") String scoreboardName, ChallengeRequest request) {
-        return getChallengeScoreboard(scoreboardName, request);
+    public Response getChallengeScoreboardPost(@PathParam("scoreboardName") String scoreboardName, ChallengeRequest request, @Context HttpHeaders headers) {
+        return getChallengeScoreboard(scoreboardName, request, headers);
     }
 }

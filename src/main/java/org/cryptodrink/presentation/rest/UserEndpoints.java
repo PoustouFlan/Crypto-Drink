@@ -25,20 +25,20 @@ public class UserEndpoints {
     @GET
     public Response getUser(@PathParam("username") String username)
     {
-        Optional<UserEntity> user = userService.find(username, true, true);
-        if (user.isEmpty())
+        UserEntity user = userService.find(username, true, true);
+        if (user == null)
             return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-        UserResponse response = userConverter.convert(user.get());
+        UserResponse response = userConverter.convert(user);
         return Response.ok().entity(response).build();
     }
 
     @Path("/{username}")
     @PUT
     public Response updateUser(@PathParam("username") String username) {
-        Optional<UserEntity> user = userService.find(username, false, true);
-        if (user.isEmpty())
+        UserEntity user = userService.find(username, false, true);
+        if (user == null)
             return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
-        UserResponse response = userConverter.convert(user.get());
+        UserResponse response = userConverter.convert(user);
         return Response.ok().entity(response).build();
     }
 }

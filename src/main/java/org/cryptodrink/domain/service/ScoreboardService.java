@@ -17,7 +17,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class ScoreboardService {
@@ -47,36 +46,40 @@ public class ScoreboardService {
         return scoreboards.listAll().stream().map(scoreboardConverter::convert).toList();
     }
 
-    public Optional<ScoreboardEntity> find(String name)
+    public ScoreboardEntity find(String name)
     {
-        return scoreboards.find("LOWER(name)", name.toLowerCase())
-                .firstResultOptional()
-                .map(scoreboardConverter::convert);
+        ScoreboardModel scoreboard = scoreboards.find("LOWER(name)", name.toLowerCase())
+                                                .firstResult();
+        if (scoreboard == null)
+            return null;
+        return scoreboardConverter.convert(scoreboard);
     }
 
     @Transactional
-    public Optional<ScoreboardEntity> findAndDelete(String name) {
-        Optional<ScoreboardModel> model = scoreboards.find("LOWER(name)", name.toLowerCase())
-                .firstResultOptional();
-        if (model.isEmpty())
-            return Optional.empty();
-        scoreboards.deleteById(model.get().getId());
-        return Optional.of(scoreboardConverter.convert(model.get()));
+    public ScoreboardEntity findAndDelete(String name) {
+        ScoreboardModel model = scoreboards.find("LOWER(name)", name.toLowerCase())
+                .firstResult();
+        if (model == null)
+            return null;
+        scoreboards.deleteById(model.getId());
+        return scoreboardConverter.convert(model);
     }
 
     @Transactional
-    public Optional<ScoreboardEntity> create(String name)
+    public ScoreboardEntity create(String name, UserEntity owner)
     {
         ScoreboardModel model = new ScoreboardModel();
         model.setName(name);
+        model.setOwner(users.findById(owner.getId()));
+        model.setIsPublic(false);
         scoreboards.persist(model);
-        return Optional.of(scoreboardConverter.convert(model));
+        return scoreboardConverter.convert(model);
     }
 
     @Transactional
     public ScoreboardEntity subscribeUser(ScoreboardEntity scoreboard, UserEntity user)
     {
-        if (scoreboard.getUsers().stream().anyMatch(existingUser -> existingUser.getId() == user.getId()))
+        if (scoreboard.getUsers().stream().anyMatch(existingUser -> existingUser.getId().equals(user.getId())))
             return scoreboard;
         ScoreboardModel scoreboardModel = scoreboards.findById(scoreboard.getId());
         UserModel userModel = users.findById(user.getId());

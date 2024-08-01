@@ -10,5 +10,7 @@ import java.util.List;
 public class ScoreboardEntity {
     private Long id;
     private String name;
+    private UserEntity owner;
+    private Boolean isPublic;
     private List<UserEntity> users;
 }
