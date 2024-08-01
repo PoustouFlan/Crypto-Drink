@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
-@Path("/auth")
+@Path("/api/auth")
 @Consumes("application/json")
 @Produces("application/json")
 public class AuthEndpoints {

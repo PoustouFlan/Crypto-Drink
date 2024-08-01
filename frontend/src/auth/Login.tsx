@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { generateAuthToken, verifyAuthToken } from '../api';
 
 const LoginPage: React.FC = () => {
@@ -9,17 +9,16 @@ const LoginPage: React.FC = () => {
     const [error, setError] = useState('');
     const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectTo = (location.state as any)?.from?.pathname || '/';
 
     useEffect(() => {
-        // Check if a JWT is stored and decode it to get the username
         const jwt = localStorage.getItem('jwt');
         if (jwt) {
-            // Decode JWT to get the username
             try {
-                const decoded = JSON.parse(atob(jwt.split('.')[1])); // Decode JWT payload
-                setLoggedInUser(decoded.sub); // 'sub' is the claim for the subject (username)
+                const decoded = JSON.parse(atob(jwt.split('.')[1]));
+                setLoggedInUser(decoded.sub);
             } catch (e) {
-                // Handle invalid JWT or decoding error
                 console.error('Invalid JWT:', e);
             }
         }
@@ -44,17 +43,16 @@ const LoginPage: React.FC = () => {
 
         try {
             await verifyAuthToken(username, payload);
-            // Redirect to the main page upon successful authentication
-            navigate('/');
+            navigate(redirectTo); // Redirect to the intended page
         } catch (err) {
             setError('Invalid token or username. Please try again.');
         }
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('jwt'); // Remove JWT from local storage
-        setLoggedInUser(null); // Update local state
-        navigate('/login'); // Redirect to the login page
+        localStorage.removeItem('jwt');
+        setLoggedInUser(null);
+        navigate('/login');
     };
 
     if (loggedInUser) {

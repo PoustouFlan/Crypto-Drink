@@ -5,14 +5,13 @@ const LogoutPage: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        localStorage.removeItem('jwt'); // Remove JWT from local storage
-        navigate('/'); // Redirect to the main page
+        localStorage.removeItem('jwt');
+        navigate('/');
     }, [navigate]);
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div>
             <h1>Logging out...</h1>
-            <p>You are being logged out. Redirecting to the main page...</p>
         </div>
     );
 };
