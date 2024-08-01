@@ -6,6 +6,8 @@ import ScoreboardPage from "./scoreboard/page.tsx";
 import CategoryList from "./category/list.tsx";
 import ChallengeList from "./challenge/list.tsx";
 import ChallengeFlaggers from "./challenge/flaggers.tsx";
+import LoginPage from "./auth/Login.tsx";
+import LogoutPage from "./auth/Logout.tsx";
 
 const App: React.FC = () => {
     return (
@@ -22,6 +24,8 @@ const App: React.FC = () => {
                 <Route path="/category/:categoryName/:challengeName" element={<ChallengeFlaggers/>}/>
                 <Route path="/scoreboard/:scoreboardName/category/:categoryName/:challengeName"
                        element={<ChallengeFlaggers/>}/>
+                <Route path="/login" element={<LoginPage/>}/>
+                <Route path="/logout" element={<LogoutPage/>} />
             </Routes>
         </Router>
     );
