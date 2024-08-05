@@ -6,19 +6,19 @@ import "./Navbar.css"
 
 const Navbar: React.FC<{ isAuthenticated: boolean }> = ({ isAuthenticated }) => {
     return (
-        <nav style={{ padding: '10px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between' }}>
+        <nav>
             <div>
-                <Link to="/scoreboard" style={{ margin: '0 10px' }}>Scoreboards</Link>
-                <Link to="/category" style={{ margin: '0 10px' }}>Categories</Link>
+                <Link to="/scoreboard">Scoreboards</Link>
+                <Link to="/category">Categories</Link>
             </div>
             <div>
                 {isAuthenticated ? (
                     <>
-                        <Link to="/user" style={{ margin: '0 10px' }}>Profile</Link>
-                        <Link to="/logout" style={{ margin: '0 10px' }}>Log out</Link>
+                        <Link to="/user">Profile</Link>
+                        <Link to="/logout">Log out</Link>
                     </>
                 ) : (
-                    <Link to="/login" style={{ margin: '0 10px' }}>Login</Link>
+                    <Link to="/login">Login</Link>
                 )}
             </div>
         </nav>

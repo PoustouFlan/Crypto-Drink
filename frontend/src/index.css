@@ -1,6 +1,7 @@
 :root {
-  --bg-color: #0c1221;
-  --sec-color: #161b2a;
+  --bg-color:    #0c1221;
+  --sec-color:   #161b2a;
+  --text-color:  #f9eae1;
   --high-orange: #ff3a00;
   --high-yellow: #fdb813;
   --high-red:    #dc4c50;
@@ -11,7 +12,7 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
+  color: var(--text-color);
   background-color: var(--bg-color);
 
   font-synthesis: none;
