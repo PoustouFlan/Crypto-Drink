@@ -12,6 +12,8 @@ const totalUsersCache = new Map();
 export interface Scoreboard {
     name: string;
     users: string[];
+    owner: string;
+    is_public: string;
 }
 
 export interface SolvedChallenge {

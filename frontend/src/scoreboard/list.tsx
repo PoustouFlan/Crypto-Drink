@@ -3,11 +3,7 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import './list.css';
 import {deleteScoreboard} from '../api'; // Import the delete function
-
-interface Scoreboard {
-    name: string;
-    users: string[];
-}
+import {Scoreboard} from "../api";
 
 interface ScoreboardListProps {
     scoreboards: Scoreboard[];
@@ -29,6 +25,7 @@ const ScoreboardList: React.FC<ScoreboardListProps> = ({scoreboards, onScoreboar
             <thead>
             <tr>
                 <th>Name</th>
+                <th>Owner</th>
                 <th>Number of Users</th>
                 <th>Actions</th>
             </tr>
@@ -41,6 +38,7 @@ const ScoreboardList: React.FC<ScoreboardListProps> = ({scoreboards, onScoreboar
                             {scoreboard.name}
                         </Link>
                     </td>
+                    <td>{scoreboard.owner}</td>
                     <td>{scoreboard.users.length}</td>
                     <td>
                         <button onClick={() => handleDelete(scoreboard.name)} className="delete-button">
