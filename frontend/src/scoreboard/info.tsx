@@ -17,13 +17,15 @@ import {faFlag, faStar, faSync, faTrash} from "@fortawesome/free-solid-svg-icons
 import TopPlayersGraph from '../user/graph'; // Adjusted import path
 import {ToastContainer} from 'react-toastify';
 import RegisterPopup from './registerPopup';
-import WorldFlags from 'react-world-flags'; // Import flag component if using a library
+import WorldFlags from 'react-world-flags';
+import {getCurrentUser} from "../Utils.tsx"; // Import flag component if using a library
 
 const ScoreboardInfo: React.FC = () => {
     const {scoreboardName} = useParams<{ scoreboardName: string }>();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+    const [owner, setOwner] = useState<string | null>(null);
 
     if (!scoreboardName) {
         setError(new Error('Unknown category or challenge'));
@@ -40,6 +42,7 @@ const ScoreboardInfo: React.FC = () => {
             }));
 
             setUsers(initialUsers);
+            setOwner(scoreboardInfo.owner);
             setLoading(false);
 
             for (const user of initialUsers) {
@@ -176,6 +179,7 @@ const ScoreboardInfo: React.FC = () => {
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
+    const currentUser = getCurrentUser();
     return (
         <div id="scoreboard-details-container">
             <div className="box-center">
@@ -185,9 +189,10 @@ const ScoreboardInfo: React.FC = () => {
                 </button>
             </div>
 
+            {currentUser && currentUser === owner && (
             <div className="box-center">
                 <RegisterPopup onRegister={handleRegisterUser} scoreboardName={scoreboardName}/>
-            </div>
+            </div>)}
             <ToastContainer
                 position="top-right"
                 autoClose={5000}
@@ -231,9 +236,10 @@ const ScoreboardInfo: React.FC = () => {
                                 </span>
                             </div>
                         </div>
+                        {currentUser && currentUser === owner && (
                         <button onClick={() => handleDeleteUser(user.username)} className="delete-button">
                             <FontAwesomeIcon icon={faTrash}/>
-                        </button>
+                        </button>)}
                     </li>
                 ))}
             </ol>

@@ -1,16 +1,17 @@
 // scoreboard/list.tsx
 import React from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './list.css';
-import {deleteScoreboard} from '../api'; // Import the delete function
-import {Scoreboard} from "../api";
+import { deleteScoreboard } from '../api'; // Import the delete function
+import { Scoreboard } from "../api";
+import {getCurrentUser} from "../Utils.tsx"; // Assuming User is imported from api
 
 interface ScoreboardListProps {
     scoreboards: Scoreboard[];
     onScoreboardDeleted: (name: string) => void; // Callback to refresh the list after deletion
 }
 
-const ScoreboardList: React.FC<ScoreboardListProps> = ({scoreboards, onScoreboardDeleted}) => {
+const ScoreboardList: React.FC<ScoreboardListProps> = ({ scoreboards, onScoreboardDeleted}) => {
     const handleDelete = async (name: string) => {
         try {
             await deleteScoreboard(name);
@@ -20,6 +21,7 @@ const ScoreboardList: React.FC<ScoreboardListProps> = ({scoreboards, onScoreboar
         }
     };
 
+    const currentUser = getCurrentUser();
     return (
         <table className="scoreboard-table">
             <thead>
@@ -41,9 +43,11 @@ const ScoreboardList: React.FC<ScoreboardListProps> = ({scoreboards, onScoreboar
                     <td>{scoreboard.owner}</td>
                     <td>{scoreboard.users.length}</td>
                     <td>
-                        <button onClick={() => handleDelete(scoreboard.name)} className="delete-button">
-                            Delete
-                        </button>
+                        {currentUser && currentUser === scoreboard.owner && (
+                            <button onClick={() => handleDelete(scoreboard.name)} className="delete-button">
+                                Delete
+                            </button>
+                        )}
                     </td>
                 </tr>
             ))}
