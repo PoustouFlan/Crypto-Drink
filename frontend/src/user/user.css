@@ -6,6 +6,10 @@
     color: var(--text-color);
     padding: 20px;
     border-radius: 10px;
+
+    width: 80vw;
+    max-width: 1000pt;
+    margin: auto;
 }
 
 .user-title {
@@ -37,6 +41,13 @@
 
 .user-level i {
     margin-right: 5px;
+}
+
+.user-graph {
+    display: flex;
+    justify-content: space-between;
+
+    width: 100%;
 }
 
 .recent-solves {
@@ -100,4 +111,10 @@
 
 .refresh-button:hover {
     color: #000;
+}
+
+@media screen and (max-width: 1000px) {
+    .user-graph {
+        display: inline;
+    }
 }

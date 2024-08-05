@@ -1,5 +1,6 @@
-#top-players-graph {
+#top-players-graph, #user-completion-radar {
     max-width: 500pt;
+    width: 50%;
     margin: auto;
 }
 
@@ -16,4 +17,10 @@
     flex: 0 0 auto;
     border: none;
     background-color: var(--bg-color);
+}
+
+@media screen and (max-width: 1000px) {
+    #top-players-graph, #user-completion-radar {
+        width: 100%;
+    }
 }
