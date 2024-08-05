@@ -3,6 +3,7 @@ package org.cryptodrink.domain.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -18,5 +19,5 @@ public class UserEntity {
     private Integer rank;
     private Integer score;
     private String website;
-    private LocalDateTime lastRefreshed;
+    private Instant lastRefreshed;
 }

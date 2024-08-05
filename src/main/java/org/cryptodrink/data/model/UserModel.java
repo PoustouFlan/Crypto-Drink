@@ -3,6 +3,7 @@ package org.cryptodrink.data.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,5 +32,5 @@ public class UserModel {
     @ManyToMany(mappedBy = "users")
     private List<ScoreboardModel> scoreboards = new ArrayList<>();
 
-    private LocalDateTime lastRefreshed;
+    private Instant lastRefreshed;
 }

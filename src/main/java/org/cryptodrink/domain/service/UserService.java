@@ -22,6 +22,9 @@ import java.security.Key;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @ApplicationScoped
 public class UserService {
@@ -117,5 +120,26 @@ public class UserService {
             logger.error("Invalid JWT token");
             return null;
         }
+    }
+
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    public void startScheduledUpdates() {
+        scheduler.scheduleAtFixedRate(this::updateAllUsers, 0, 5, TimeUnit.MINUTES);
+    }
+
+    private void updateAllUsers() {
+        logger.info("Starting user updates...");
+
+        users.listAll().forEach(user -> {
+            scheduler.submit(() -> {
+                try {
+                    cryptoHack.updateUserInfo(user.getUsername());
+                    logger.info("Successfully updated user info for {}", user.getUsername());
+                } catch (Exception e) {
+                    logger.error("Failed to update user info for {}", user.getUsername(), e);
+                }
+            });
+        });
     }
 }
