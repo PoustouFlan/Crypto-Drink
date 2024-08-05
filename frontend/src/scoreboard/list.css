@@ -31,3 +31,7 @@
 .scoreboard-table tr:nth-child(odd) {
     background-color: var(--sec-color);
 }
+
+.scoreboard-table td:last-child {
+    width: 1px;
+}

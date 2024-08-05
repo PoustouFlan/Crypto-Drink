@@ -6,6 +6,9 @@ import { deleteScoreboard } from '../api'; // Import the delete function
 import { Scoreboard } from "../api";
 import {getCurrentUser} from "../Utils.tsx"; // Assuming User is imported from api
 
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faTrash} from "@fortawesome/free-solid-svg-icons";
+
 interface ScoreboardListProps {
     scoreboards: Scoreboard[];
     onScoreboardDeleted: (name: string) => void; // Callback to refresh the list after deletion
@@ -27,9 +30,9 @@ const ScoreboardList: React.FC<ScoreboardListProps> = ({ scoreboards, onScoreboa
             <thead>
             <tr>
                 <th>Name</th>
-                <th>Owner</th>
                 <th>Number of Users</th>
-                <th>Actions</th>
+                <th>Owner</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -40,12 +43,12 @@ const ScoreboardList: React.FC<ScoreboardListProps> = ({ scoreboards, onScoreboa
                             {scoreboard.name}
                         </Link>
                     </td>
-                    <td>{scoreboard.owner}</td>
                     <td>{scoreboard.users.length}</td>
+                    <td>{scoreboard.owner}</td>
                     <td>
                         {currentUser && currentUser === scoreboard.owner && (
                             <button onClick={() => handleDelete(scoreboard.name)} className="delete-button">
-                                Delete
+                                <FontAwesomeIcon icon={faTrash}/>
                             </button>
                         )}
                     </td>

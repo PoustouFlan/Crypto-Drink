@@ -93,6 +93,6 @@
     color: var(--high-red);
 }
 
-.delete-button:hover {
+.delete-button:hover svg {
     color: red;
 }
