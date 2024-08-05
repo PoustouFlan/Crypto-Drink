@@ -46,7 +46,7 @@ const CreateScoreboard: React.FC<CreateScoreboardProps> = ({onScoreboardCreated}
                         onChange={(e) => setName(e.target.value)}
                     />
                 </div>
-                <button type="submit">Create Scoreboard</button>
+                <button className="submit-button" type="submit">Create Scoreboard</button>
             </form>
             {error && <div className="error-message">{error}</div>}
             {success && <div className="success-message">{success}</div>}

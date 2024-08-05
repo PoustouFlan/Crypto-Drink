@@ -1,7 +1,7 @@
 // user/header.tsx
 import React, {useEffect, useState} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faStar, faTint} from '@fortawesome/free-solid-svg-icons';
+import {faStar, faTint, faSyncAlt} from '@fortawesome/free-solid-svg-icons';
 import Flag from 'react-world-flags'; // Import the Flag component
 import {fetchTotalUsers} from '../api'; // Import the method to fetch total users
 import {formatDistanceToNow, parseISO} from 'date-fns'; // Import date-fns methods
@@ -15,6 +15,7 @@ interface UserHeaderProps {
     score?: number;
     first_bloods?: number;
     last_refreshed?: string; // Add last_refreshed to props
+    handle_refresh?: () => void;
 }
 
 const UserHeader: React.FC<UserHeaderProps> = ({
@@ -25,7 +26,8 @@ const UserHeader: React.FC<UserHeaderProps> = ({
                                                    level,
                                                    score,
                                                    first_bloods,
-                                                   last_refreshed
+                                                   last_refreshed,
+                                                   handle_refresh
                                                }) => {
     const [totalUsers, setTotalUsers] = useState<number | null>(null);
 
@@ -52,6 +54,9 @@ const UserHeader: React.FC<UserHeaderProps> = ({
                     <Flag code={country} style={{width: '2rem', height: '1.5rem', marginRight: '0.5rem'}}/>
                 </span>
                 {username}
+                <button className="refresh-button icon-button" onClick={handle_refresh}>
+                    <FontAwesomeIcon icon={faSyncAlt} />
+                </button>
             </h1>
             <div className="user-details">
                 <p>Joined: <b>{joined}</b></p>

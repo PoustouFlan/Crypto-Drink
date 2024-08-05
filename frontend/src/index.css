@@ -1,11 +1,18 @@
 :root {
+  --bg-color: #0c1221;
+  --sec-color: #161b2a;
+  --high-orange: #ff3a00;
+  --high-yellow: #fdb813;
+  --high-red:    #dc4c50;
+  --high-blue:   #00aee0;
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: var(--bg-color);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -15,11 +22,16 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--high-yellow);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--high-orange);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -41,22 +53,61 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+  position: relative;
+
+  border: 1px solid;
+  border-radius: 20pt;
   padding: 0.6em 1.2em;
+
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+
+  background-color: var(--sec-color);
   cursor: pointer;
-  transition: border-color 0.25s;
 }
+
 button:hover {
-  border-color: #646cff;
+  border-color: var(--high-blue);
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+
+.submit-button, button[type="submit"] {
+    border: none;
+}
+
+.submit-button::after, button[type="submit"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+
+    height: 100%;
+    width: 100%;
+
+    padding: 3px;
+
+    background-image: linear-gradient(to bottom right, var(--high-yellow), var(--high-orange));
+    border-radius: 20pt;
+
+    z-index: -1;
+}
+
+.submit-button:hover, button[type="submit"]:hover {
+    z-index: 0;
+}
+
+.icon-button {
+    border: none;
+    background-color: transparent;
+}
+
+.icon-button svg {
+    color: var(--high-yellow);
+}
+
+.icon-button:hover svg {
+    color: var(--high-orange);
 }
 
 @media (prefers-color-scheme: light) {

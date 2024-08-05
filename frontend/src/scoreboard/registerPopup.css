@@ -10,14 +10,17 @@
 
     width: 100%;
     height: 100%;
+
+    z-index: 1;
 }
 
 #register-toggle {
-    background-color: #333333;
+    background-color: var(--sec-color);
 }
 
 #register-popup {
     margin: auto;
+    min-width: 300pt;
     width: 40%;
     max-width: 500pt;
 }
@@ -29,7 +32,7 @@
 }
 
 .register-tab-btn {
-    background-color: #1a1a1a;
+    background-color: var(--bg-color);
     border: none;
 
     color: rgb(117, 116, 122);
@@ -41,8 +44,8 @@
 }
 
 .register-tab-btn:disabled {
-    background-color: #333;
-    color: white;
+    background-color: var(--sec-color);
+    color: var(--text-color);
 }
 
 #register-user-btn {
@@ -58,7 +61,7 @@
 #register-content {
     position: relative;
 
-    background-color: #333;
+    background-color: var(--sec-color);
     border-radius: 0 10pt 10pt 10pt;
 
     padding: 2em;
@@ -70,7 +73,7 @@
 #register-close-btn {
     position: absolute;
     top: 10pt;
-    right: 10pt;
+    right: 5pt;
 }
 
 .register-title {
@@ -87,13 +90,11 @@
     margin: 10pt 2em 20pt 0;
 }
 
-.register-form-content label {
-    margin-left: 2pt;
-}
-
 .register-form-content input {
-    border: 2px solid #1a1a1a;
-    border-radius: 10pt;
+    border: none;
+ 
+    border-bottom: 1px solid;
+    background-color: var(--sec-color);
 
     width: 100%;
     padding: 10pt;

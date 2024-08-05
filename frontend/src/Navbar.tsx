@@ -2,6 +2,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import "./Navbar.css"
+
 const Navbar: React.FC<{ isAuthenticated: boolean }> = ({ isAuthenticated }) => {
     return (
         <nav style={{ padding: '10px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between' }}>

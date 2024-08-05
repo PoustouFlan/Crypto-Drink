@@ -31,6 +31,9 @@ ChartJS.register(
     zoomPlugin // Register the zoom plugin
 );
 
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faExpand, faCompress, faC} from "@fortawesome/free-solid-svg-icons";
+
 interface ScoreEntry {
     date: string;
     score: number;
@@ -212,12 +215,14 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
         <div id="top-players-graph">
             <h2>{singleUser ? 'Score' : 'Scores of Top 10 Players'}</h2>
             <div className="button-group">
+                <div className="duration-buttons">
                 <button onClick={() => handleTimeRangeChange('week')}>1 Week</button>
                 <button onClick={() => handleTimeRangeChange('month')}>1 Month</button>
                 <button onClick={() => handleTimeRangeChange('4months')}>4 Months</button>
                 <button onClick={() => handleTimeRangeChange('year')}>1 Year</button>
                 <button onClick={() => handleTimeRangeChange('all')}>All</button>
-                <button onClick={handleFullScreen}>{isFullScreen ? 'Exit Full Screen' : 'Full Screen'}</button>
+                </div>
+                <button onClick={handleFullScreen}>{isFullScreen ? <FontAwesomeIcon icon={faCompress}/> : <FontAwesomeIcon icon={faExpand} />}</button>
             </div>
             <Line ref={chartRef} data={data} options={options}/>
         </div>

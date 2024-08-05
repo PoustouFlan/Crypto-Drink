@@ -2,3 +2,18 @@
     max-width: 500pt;
     margin: auto;
 }
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    position: relative;
+    z-index: 0;
+}
+
+.button-group button {
+    flex: 0 0 auto;
+    border: none;
+    background-color: var(--bg-color);
+}

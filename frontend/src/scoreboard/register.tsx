@@ -49,15 +49,11 @@ const RegisterUser: React.FC<RegisterUserProps> = ({onRegister}) => {
         <h2 className="register-title">Register a New User</h2>
         <form onSubmit={handleRegister}>
             <div className="register-form-content">
-                <label htmlFor="username">
-                    Username:
-                </label>
-                <br />
                 <input
                     id="username"
                     type="text"
                     value={username}
-                    placeholder='Enter a username'
+                    placeholder='Username'
                     onChange={(e) => setUsername(e.target.value)}
                     required
                 ></input>

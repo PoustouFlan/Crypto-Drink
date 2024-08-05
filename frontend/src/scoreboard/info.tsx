@@ -184,7 +184,7 @@ const ScoreboardInfo: React.FC = () => {
         <div id="scoreboard-details-container">
             <div className="box-center">
                 <h1>{scoreboardName} Scoreboard</h1>
-                <button onClick={handleRefreshUsers} className="refresh-button">
+                <button onClick={handleRefreshUsers} className="refresh-button icon-button">
                     <FontAwesomeIcon icon={faSync}/>
                 </button>
             </div>
