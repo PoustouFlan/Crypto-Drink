@@ -31,6 +31,7 @@ const RegisterPopup: React.FC<RegisterPopupProps> = ({onRegister, scoreboardName
     return (
         <>
         <button id="register-toggle"
+            className="submit-button"
             onClick={() => setSeen(true)}>
             Register
         </button>
@@ -56,6 +57,7 @@ const RegisterPopup: React.FC<RegisterPopupProps> = ({onRegister, scoreboardName
                 <div id="register-content">
 
                 <button id="register-close-btn"
+                    className="icon-button"
                     onClick={() => setSeen(false)}>
                     <FontAwesomeIcon icon={faXmark} />
                 </button>

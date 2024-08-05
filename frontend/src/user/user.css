@@ -1,24 +1,19 @@
-html, body {
-    background-color: #1a1a1a;
-    color: #ffffff;
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif; /* You can set the desired font-family */
-}
-
 .container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #1a1a1a;
-    color: #ffffff;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     padding: 20px;
     border-radius: 10px;
+
+    width: 80vw;
+    max-width: 1000pt;
+    margin: auto;
 }
 
 .user-title {
     font-size: 36px;
-    color: #ff5252;
 }
 
 .user-details {
@@ -27,15 +22,15 @@ html, body {
 }
 
 .user-details b {
-    color: #ff5252;
+    color: var(--high-red);
 }
 
 .user-level {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #333333;
-    padding: 10px;
+    background-color: var(--sec-color);
+    padding: 10px 20px;
     border-radius: 10px;
     margin-bottom: 20px;
 }
@@ -46,6 +41,13 @@ html, body {
 
 .user-level i {
     margin-right: 5px;
+}
+
+.user-graph {
+    display: flex;
+    justify-content: space-between;
+
+    width: 100%;
 }
 
 .recent-solves {
@@ -65,17 +67,21 @@ html, body {
 .recent-solves th, .recent-solves td {
     padding: 10px;
     text-align: left;
-    border-bottom: 1px solid #333333;
 }
 
 .recent-solves th {
-    background-color: #333333;
+    background-color: var(--bg-color);
+    border-bottom: 1px solid var(--high-orange);
+    font-family: "IBM Plex Mono", sans-serif;
     color: #ffffff; /* Ensure header text is white */
 }
 
 .recent-solves td {
-    background-color: #1a1a1a;
     color: #ffffff; /* Ensure body text is white */
+}
+
+.recent-solves tr:nth-child(even) {
+    background-color: var(--sec-color);
 }
 
 .gold-text {
@@ -105,4 +111,10 @@ html, body {
 
 .refresh-button:hover {
     color: #000;
+}
+
+@media screen and (max-width: 1000px) {
+    .user-graph {
+        display: inline;
+    }
 }

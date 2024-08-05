@@ -184,7 +184,7 @@ const ScoreboardInfo: React.FC = () => {
         <div id="scoreboard-details-container">
             <div className="box-center">
                 <h1>{scoreboardName} Scoreboard</h1>
-                <button onClick={handleRefreshUsers} className="refresh-button">
+                <button onClick={handleRefreshUsers} className="refresh-button icon-button">
                     <FontAwesomeIcon icon={faSync}/>
                 </button>
             </div>
@@ -202,9 +202,10 @@ const ScoreboardInfo: React.FC = () => {
                 theme="dark"
             />
 
+            <h2 className="section-title">Scores of Top 10 Players</h2>
             <TopPlayersGraph users={sortedUsers.slice(0, 10)}/>
 
-            <div id="leaderboard-title">
+            <div id="leaderboard-title" className="section-title">
                 <h2>Leaderboard</h2>
                 <span className="icon-wrapper"><FontAwesomeIcon icon={faStar} className="gold-text"/>
                     Score

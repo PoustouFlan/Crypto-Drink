@@ -68,7 +68,7 @@ const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({completion, us
     };
 
     return (
-        <div>
+        <div id="user-completion-radar">
             <button onClick={() => setShowScore(!showScore)}>
                 {showScore ? 'Show Challenges Solved' : 'Show Score'}
             </button>

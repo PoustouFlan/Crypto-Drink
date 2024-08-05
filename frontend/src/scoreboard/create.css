@@ -7,15 +7,15 @@
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    background-color: #f9f9f9;
+    background-color: var(--sec-color);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 0;
 }
 
 /* Heading for the form */
 .create-scoreboard-container h2 {
     margin-top: 0;
     font-size: 24px;
-    color: #333;
     text-align: center;
 }
 
@@ -28,7 +28,6 @@
 /* Input label styling */
 .create-scoreboard-container label {
     font-size: 16px;
-    color: #333;
     margin-bottom: 8px;
 }
 
@@ -39,23 +38,6 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     margin-bottom: 20px;
-}
-
-/* Submit button styling */
-.create-scoreboard-container button {
-    padding: 10px 15px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* Submit button hover effect */
-.create-scoreboard-container button:hover {
-    background-color: #0056b3;
 }
 
 /* Error message styling */

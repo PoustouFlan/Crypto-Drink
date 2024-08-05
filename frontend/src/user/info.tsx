@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import './user.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import { fetchChallengeDetails, fetchUserData, refreshUserData, SolvedChallenge, User } from '../api';
 import ScoreGraph from './graph'; // Adjusted import path
 import UserCompletionRadar from './radar';
@@ -123,14 +121,14 @@ const UserInfo: React.FC = () => {
                         score={user.score}
                         first_bloods={user.first_bloods}
                         last_refreshed={user.last_refreshed}
+                        handle_refresh={handleRefresh}
                     />
-                    <button className="refresh-button" onClick={handleRefresh}>
-                        <FontAwesomeIcon icon={faSyncAlt} />
-                    </button>
+
+                    <h2 className="section-title">Score</h2>
                     <div className="user-graph">
                         <ScoreGraph users={[user]} singleUser={true} />
+                        {user.completion && <UserCompletionRadar completion={user.completion} useScore={false} />}
                     </div>
-                    {user.completion && <UserCompletionRadar completion={user.completion} useScore={false} />}
                     {user.solved_challenges && <SolvedChallenges solvedChallenges={user.solved_challenges} />}
                 </>
             )}

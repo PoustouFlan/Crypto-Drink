@@ -5,6 +5,7 @@
 .box-center {
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 /* Scoreboard specific */
@@ -40,7 +41,7 @@
 }
 
 #scoreboard-table li:nth-child(odd) {
-    background-color: #333;
+    background-color: var(--sec-color);
 }
 
 .player-index {
@@ -72,25 +73,26 @@
 }
 
 .gold-text {
-    color: gold;
+    color: var(--high-yellow);
     margin-right: 5px;
 }
 
 .red-text {
-    color: red;
+    color: var(--high-red);
     margin-right: 5px;
 }
 
 .delete-button {
     background: none;
     border: none;
-    color: red;
     cursor: pointer;
     flex-grow: 0;
 }
 
-.delete-button:hover {
-    color: darkred;
+.delete-button svg {
+    color: var(--high-red);
 }
 
-/* Register popup */
+.delete-button:hover svg {
+    color: red;
+}
