@@ -5,6 +5,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar} from '@fortawesome/free-solid-svg-icons';
 import {fetchChallengeDetails, SolvedChallenge} from '../api';
 import {Link, useParams} from "react-router-dom";
+import {encodeURIComponent} from "../Utils.tsx";
 
 interface SolvedChallengesProps {
     solvedChallenges: SolvedChallenge[];

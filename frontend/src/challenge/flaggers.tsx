@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
 import {fetchChallengeFlaggers, fetchScoreboardChallengeFlaggers} from '../api';
+import {decodeURIComponent} from "../Utils.tsx";
 
 interface FlaggersParams extends Record<string, string | undefined> {
     scoreboardName?: string;

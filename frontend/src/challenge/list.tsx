@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
 import {fetchChallengesByCategory} from '../api';
+import {decodeURIComponent, encodeURIComponent} from "../Utils.tsx";
 
 interface ChallengeListParams extends Record<string, string | undefined> {
     categoryName: string;

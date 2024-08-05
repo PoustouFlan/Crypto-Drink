@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
 import {fetchCategories} from '../api';
+import {encodeURIComponent} from "../Utils.tsx";
 
 const CategoryList: React.FC = () => {
     const {scoreboardName} = useParams();
