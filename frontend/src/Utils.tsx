@@ -1,14 +1,12 @@
 // authUtils.ts
 import { jwtDecode } from 'jwt-decode';
 
-export function decodeURIComponent(component: string): string
-{
-    return component.replace("+", " ");
+export function decodeURIComponent(component: string): string {
+    return component.replace(/\+/g, ' ');
 }
 
-export function encodeURIComponent(component: string): string
-{
-    return component.replace(" ", "+");
+export function encodeURIComponent(component: string): string {
+    return component.replace(/ /g, '+');
 }
 
 interface DecodedToken {
