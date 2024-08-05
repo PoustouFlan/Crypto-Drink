@@ -81,7 +81,7 @@ public class AuthService {
 
         return Jwts.builder()
                 .subject(username)
-                .expiration(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)))
+                .expiration(Date.from(Instant.now().plus(1, ChronoUnit.MONTHS)))
                 .signWith(signingKey)
                 .compact();
     }

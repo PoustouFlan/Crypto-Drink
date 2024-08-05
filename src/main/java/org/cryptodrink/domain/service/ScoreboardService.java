@@ -71,7 +71,7 @@ public class ScoreboardService {
         ScoreboardModel model = new ScoreboardModel();
         model.setName(name);
         model.setOwner(users.findById(owner.getId()));
-        model.setIsPublic(false);
+        model.setIsPublic(true);
         scoreboards.persist(model);
         return scoreboardConverter.convert(model);
     }
