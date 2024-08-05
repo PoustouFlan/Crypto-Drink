@@ -52,11 +52,11 @@
 
 .recent-solves {
     width: 100%;
-    color: #ffffff; /* Ensure all text in recent-solves is white */
+    color: var(--text-color); /* Ensure all text in recent-solves is white */
 }
 
 .recent-solves h3 {
-    color: #ffffff; /* Ensure the "Solved Challenges" text is white */
+    color: var(--text-color); /* Ensure the "Solved Challenges" text is white */
 }
 
 .recent-solves table {
@@ -73,11 +73,11 @@
     background-color: var(--bg-color);
     border-bottom: 1px solid var(--high-orange);
     font-family: "IBM Plex Mono", sans-serif;
-    color: #ffffff; /* Ensure header text is white */
+    color: var(--text-color); /* Ensure header text is white */
 }
 
 .recent-solves td {
-    color: #ffffff; /* Ensure body text is white */
+    color: var(--text-color); /* Ensure body text is white */
 }
 
 .recent-solves tr:nth-child(even) {
@@ -85,7 +85,7 @@
 }
 
 .gold-text {
-    color: #ffd700;
+    color: gold;
 }
 
 .red-text {
@@ -106,11 +106,6 @@
     cursor: pointer;
     font-size: 1.5rem;
     margin-left: 10px;
-    color: #555;
-}
-
-.refresh-button:hover {
-    color: #000;
 }
 
 @media screen and (max-width: 1000px) {

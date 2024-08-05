@@ -1,7 +1,23 @@
 nav {
-    position: absolute;
+    position: fixed;
     top: 0;
+
+    display: flex;
+    justify-content: space-between;
+
+    background-color: var(--sec-color);
+    border-bottom: 1px solid var(--text-color);
+
+    padding: 10px;
 
     width: 100%;
     box-sizing: border-box;
+
+    font-family: "IBM Plex Mono", sans-serif;
+
+    z-index: 1;
+}
+
+nav a {
+    margin: 0 10px;
 }
