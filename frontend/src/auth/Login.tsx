@@ -8,6 +8,7 @@ const LoginPage: React.FC = () => {
     const [token, setToken] = useState('');
     const [error, setError] = useState('');
     const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
+    const [step, setStep] = useState<number>(1); // Track the current step
     const navigate = useNavigate();
     const location = useLocation();
     const redirectTo = (location.state as any)?.from?.pathname || '/';
@@ -24,12 +25,18 @@ const LoginPage: React.FC = () => {
         }
     }, []);
 
-    const handleGenerateToken = async () => {
+    const handleUsernameSubmit = async () => {
+        if (!username) {
+            setError('Please enter your CryptoHack username.');
+            return;
+        }
+
         try {
             const response = await generateAuthToken();
             setPayload(response.payload);
             setToken(response.token);
             setError('');
+            setStep(2); // Move to the next step
         } catch (err) {
             setError('Failed to generate token. Please try again.');
         }
@@ -37,13 +44,14 @@ const LoginPage: React.FC = () => {
 
     const handleVerifyToken = async () => {
         if (!username || !payload) {
-            setError('Please provide your username and ensure the token has been generated.');
+            setError('Please enter your username and ensure the token has been generated.');
             return;
         }
 
         try {
             await verifyAuthToken(username, payload);
-            navigate(redirectTo); // Redirect to the intended page
+            localStorage.setItem('jwt', token);
+            navigate(redirectTo);
         } catch (err) {
             setError('Invalid token or username. Please try again.');
         }
@@ -68,33 +76,33 @@ const LoginPage: React.FC = () => {
     return (
         <div style={{ padding: '20px' }}>
             <h1>Login</h1>
-            <p>
-                To authenticate, follow these steps:
-                <ol>
-                    <li>Click on the "Generate Token" button to get a temporary token.</li>
-                    <li>Log in to your CryptoHack account and set the given token as your website URL.</li>
-                    <li>Click on the "Verify Token" button to validate your token and log in.</li>
-                </ol>
-            </p>
-
-            <button onClick={handleGenerateToken}>Generate Token</button>
-
-            {token && (
-                <div>
-                    <p>Your temporary token is: <code>{token}</code></p>
-                    <p>Set this token as your website URL on CryptoHack, then enter your username below and click "Verify Token".</p>
-                </div>
+            {step === 1 && (
+                <>
+                    <p>
+                        To authenticate, please enter your CryptoHack username below.
+                        Once entered, a token will be automatically generated for you.
+                    </p>
+                    <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Enter your CryptoHack username"
+                    />
+                    <button onClick={handleUsernameSubmit}>Submit Username</button>
+                </>
             )}
 
-            <div>
-                <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your CryptoHack username"
-                />
-                <button onClick={handleVerifyToken}>Verify Token</button>
-            </div>
+            {step === 2 && (
+                <>
+                    <p>
+                        A temporary token has been generated. Please set this token as your website URL in your CryptoHack profile settings.
+                        You can set it at: <a href={`https://cryptohack.org/user/${username}/`} target="_blank" rel="noopener noreferrer">CryptoHack Profile</a>.
+                        Click on "Profile settings" on this page.
+                    </p>
+                    <p>Your token is: <code>{token}</code></p>
+                    <button onClick={handleVerifyToken}>Verify Token</button>
+                </>
+            )}
 
             {error && <p style={{ color: 'red' }}>{error}</p>}
         </div>
