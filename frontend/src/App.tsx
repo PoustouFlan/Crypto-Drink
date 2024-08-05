@@ -9,6 +9,7 @@ import ChallengeFlaggers from "./challenge/flaggers.tsx";
 import LoginPage from "./auth/Login.tsx";
 import LogoutPage from "./auth/Logout.tsx";
 import ProtectedRoute from './auth/ProtectedRoute';
+import Navbar from "./Navbar.tsx";
 
 const App: React.FC = () => {
     const jwt = localStorage.getItem('jwt');
@@ -16,6 +17,7 @@ const App: React.FC = () => {
 
     return (
         <Router>
+            <Navbar isAuthenticated={isAuthenticated} />
             <Routes>
                 <Route path="/user" element={<ProtectedRoute element={<UserInfo />} isAuthenticated={isAuthenticated} />} />
                 <Route path="/user/:username" element={<UserInfo />} />
