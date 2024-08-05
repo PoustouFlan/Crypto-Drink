@@ -3,6 +3,7 @@ package org.cryptodrink.domain.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.quarkus.scheduler.Scheduled;
 import org.cryptodrink.converter.ScoreboardConverter;
 import org.cryptodrink.converter.SolvedChallengeConverter;
 import org.cryptodrink.converter.UserConverter;
@@ -14,6 +15,7 @@ import org.cryptodrink.presentation.rest.response.CategoryCompletionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -122,24 +124,18 @@ public class UserService {
         }
     }
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-    public void startScheduledUpdates() {
-        scheduler.scheduleAtFixedRate(this::updateAllUsers, 0, 5, TimeUnit.MINUTES);
-    }
-
-    private void updateAllUsers() {
+    @Scheduled(every = "5m")
+    public void updateAllUsers() {
         logger.info("Starting user updates...");
 
         users.listAll().forEach(user -> {
-            scheduler.submit(() -> {
-                try {
-                    cryptoHack.updateUserInfo(user.getUsername());
-                    logger.info("Successfully updated user info for {}", user.getUsername());
-                } catch (Exception e) {
-                    logger.error("Failed to update user info for {}", user.getUsername(), e);
-                }
-            });
+            try {
+                cryptoHack.updateUserInfo(user.getUsername());
+                logger.info("Successfully updated user info for {}", user.getUsername());
+            } catch (Exception e) {
+                logger.error("Failed to update user info for {}", user.getUsername(), e);
+            }
         });
+
     }
 }
