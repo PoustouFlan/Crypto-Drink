@@ -127,7 +127,7 @@ button:hover {
     --high-orange: #f04e23;
   }
 
-  a:hover {
+  a:hover, .icon-button:hover svg {
     color: #747bff;
   }
 
