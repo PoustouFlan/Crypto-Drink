@@ -213,7 +213,6 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
 
     return (
         <div id="top-players-graph">
-            <h2>{singleUser ? 'Score' : 'Scores of Top 10 Players'}</h2>
             <div className="button-group">
                 <div className="duration-buttons">
                 <button onClick={() => handleTimeRangeChange('week')}>1 Week</button>

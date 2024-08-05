@@ -52,6 +52,12 @@ h1 {
   font-family: "IBM Plex Mono";
 }
 
+.section-title {
+  border-bottom: 1px solid var(--high-blue);
+  padding: 0 0 2pt 2pt;
+  width: 100%;
+}
+
 button {
   position: relative;
 

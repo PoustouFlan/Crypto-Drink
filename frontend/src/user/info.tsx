@@ -123,10 +123,12 @@ const UserInfo: React.FC = () => {
                         last_refreshed={user.last_refreshed}
                         handle_refresh={handleRefresh}
                     />
+
+                    <h2 className="section-title">Score</h2>
                     <div className="user-graph">
                         <ScoreGraph users={[user]} singleUser={true} />
+                        {user.completion && <UserCompletionRadar completion={user.completion} useScore={false} />}
                     </div>
-                    {user.completion && <UserCompletionRadar completion={user.completion} useScore={false} />}
                     {user.solved_challenges && <SolvedChallenges solvedChallenges={user.solved_challenges} />}
                 </>
             )}
