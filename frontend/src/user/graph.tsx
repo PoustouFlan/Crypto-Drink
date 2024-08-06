@@ -32,7 +32,7 @@ ChartJS.register(
 );
 
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faExpand, faCompress, faC} from "@fortawesome/free-solid-svg-icons";
+import {faExpand, faCompress} from "@fortawesome/free-solid-svg-icons";
 
 interface ScoreEntry {
     date: string;

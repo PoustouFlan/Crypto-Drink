@@ -9,10 +9,14 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path("/api/auth")
 @Consumes("application/json")
 @Produces("application/json")
 public class AuthEndpoints {
+    private static final Logger logger = LoggerFactory.getLogger(AuthEndpoints.class);
 
     @Inject
     AuthService authService;
@@ -41,6 +45,7 @@ public class AuthEndpoints {
                 return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid token").build();
             }
         } catch (Exception e) {
+	    logger.error(e.toString());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error verifying token").build();
         }
     }

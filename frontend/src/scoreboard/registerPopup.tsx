@@ -1,3 +1,4 @@
+import React from 'react';
 import {useEffect, useState} from "react"
 
 import RegisterUser from './register'; // Import the RegisterUser component
