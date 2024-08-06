@@ -50,7 +50,6 @@ const LoginPage: React.FC = () => {
 
         try {
             await verifyAuthToken(username, payload);
-            localStorage.setItem('jwt', token);
             navigate(redirectTo);
         } catch (err) {
             setError('Invalid token or username. Please try again.');
