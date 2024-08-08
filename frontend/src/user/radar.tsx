@@ -17,18 +17,21 @@ interface UserCompletionRadarProps {
 
 const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({completion, useScore = false}) => {
     const [showScore, setShowScore] = useState(useScore);
+    const filteredCompletion = showScore
+        ? completion.filter(c => c.total_score != 0)
+        : completion.filter(c => c.total != 0);
 
     const data = {
-        labels: completion.map(c => c.name),
+        labels: filteredCompletion.map(c => c.name),
         datasets: [
             {
                 label: showScore ? 'Score' : 'Challenges Solved',
                 data: showScore
-                    ? completion.map(c => (c.score / c.total_score) * 100)
-                    : completion.map(c => (c.solved / c.total) * 100),
-                backgroundColor: completion.map(c => (c.solved === c.total ? 'rgba(34, 202, 236, 0.5)' : 'rgba(34, 202, 236, 0.2)')),
+                    ? filteredCompletion.map(c => (c.score / c.total_score) * 100)
+                    : filteredCompletion.map(c => (c.solved / c.total) * 100),
+                backgroundColor: filteredCompletion.map(c => (c.solved === c.total ? 'rgba(34, 202, 236, 0.5)' : 'rgba(34, 202, 236, 0.2)')),
                 borderColor: 'rgba(34, 202, 236, 1)',
-                pointBackgroundColor: completion.map(c => (c.solved === c.total ? 'rgba(34, 202, 236, 1)' : 'rgba(0, 0, 0, 0.1)')),
+                pointBackgroundColor: filteredCompletion.map(c => (c.solved === c.total ? 'rgba(34, 202, 236, 1)' : 'rgba(0, 0, 0, 0.1)')),
                 borderWidth: 2,
             },
         ],
