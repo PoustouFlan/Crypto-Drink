@@ -1,52 +1,52 @@
-import React, {useState} from 'react';
-import {Radar} from 'react-chartjs-2';
-import {Chart, Filler, Legend, LineElement, PointElement, RadialLinearScale, Tooltip} from 'chart.js';
+// src/user/radar.tsx
+import React, { useState } from 'react';
+import { Radar } from 'react-chartjs-2';
+import { Chart, Filler, Legend, LineElement, PointElement, RadialLinearScale, Tooltip } from 'chart.js';
+import { Completion, User } from '../api';
+import { colorScheme } from '../Utils';
 
 Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 interface UserCompletionRadarProps {
-    completion: {
-        name: string;
-        solved: number;
-        total: number;
-        score: number;
-        total_score: number;
-    }[];
+    completions: User[];
     useScore?: boolean;
+    colorScheme?: string[];
 }
 
-const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({completion, useScore = false}) => {
+const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({ completions, useScore = false }) => {
     const [showScore, setShowScore] = useState(useScore);
-    const filteredCompletion = showScore
-        ? completion.filter(c => c.total_score != 0)
-        : completion.filter(c => c.total != 0);
+
+    function filteredCompletion(user: User): Completion[] {
+        if (user.completion == null) return [];
+        return showScore
+            ? user.completion.filter(c => c.total_score !== 0)
+            : user.completion.filter(c => c.total !== 0);
+    }
 
     const data = {
-        labels: filteredCompletion.map(c => c.name),
-        datasets: [
-            {
-                label: showScore ? 'Score' : 'Challenges Solved',
-                data: showScore
-                    ? filteredCompletion.map(c => (c.score / c.total_score) * 100)
-                    : filteredCompletion.map(c => (c.solved / c.total) * 100),
-                backgroundColor: filteredCompletion.map(c => (c.solved === c.total ? 'rgba(34, 202, 236, 0.5)' : 'rgba(34, 202, 236, 0.2)')),
-                borderColor: 'rgba(34, 202, 236, 1)',
-                pointBackgroundColor: filteredCompletion.map(c => (c.solved === c.total ? 'rgba(34, 202, 236, 1)' : 'rgba(0, 0, 0, 0.1)')),
-                borderWidth: 2,
-            },
-        ],
+        labels: filteredCompletion(completions[0]).map(c => c.name),
+        datasets: completions.map((user, index) => ({
+            label: user.username,
+            data: showScore
+                ? filteredCompletion(user).map(c => (c.score / c.total_score) * 100)
+                : filteredCompletion(user).map(c => (c.solved / c.total) * 100),
+            borderColor: colorScheme[index] || 'rgba(34, 202, 236, 1)',
+            pointBackgroundColor: filteredCompletion(user).map(c => (c.solved === c.total ? colorScheme[index] || 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.1)')),
+            borderWidth: 2,
+        }))
     };
 
     const options = {
         scales: {
             r: {
-                type: 'radialLinear' as const, // Correct scale type
+                type: 'radialLinear' as const,
                 angleLines: {
                     display: false,
                 },
                 suggestedMin: 0,
                 suggestedMax: 100,
                 ticks: {
+                    backdropColor: 'rgba(0, 0, 0, 0)',
                     callback: function (value: number | string) {
                         return typeof value === 'number' ? `${value}%` : `${value}`;
                     },
@@ -58,7 +58,7 @@ const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({completion, us
                 callbacks: {
                     label: function (context: any) {
                         const index = context.dataIndex;
-                        const category = completion[index];
+                        const category = filteredCompletion(completions[0])[index];
                         if (showScore) {
                             return `${category.name}: ${category.score} / ${category.total_score} (${Math.round(context.raw)}%)`;
                         } else {
@@ -75,7 +75,7 @@ const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({completion, us
             <button onClick={() => setShowScore(!showScore)}>
                 {showScore ? 'Show Challenges Solved' : 'Show Score'}
             </button>
-            <Radar data={data} options={options}/>
+            <Radar data={data} options={options} />
         </div>
     );
 };

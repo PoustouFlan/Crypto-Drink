@@ -127,7 +127,7 @@ const UserInfo: React.FC = () => {
                     <h2 className="section-title">Score</h2>
                     <div className="user-graph">
                         <ScoreGraph users={[user]} singleUser={true} />
-                        {user.completion && <UserCompletionRadar completion={user.completion} useScore={false} />}
+                        {user.completion && <UserCompletionRadar completions={[user]} useScore={false} />}
                     </div>
                     {user.solved_challenges && <SolvedChallenges solvedChallenges={user.solved_challenges} />}
                 </>

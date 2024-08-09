@@ -1,6 +1,6 @@
 // scoreboard/info.tsx
-import React, {useCallback, useEffect, useState} from 'react';
-import {Link, useParams} from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import {
     deleteUserFromScoreboard,
     fetchChallengeDetails,
@@ -12,16 +12,17 @@ import {
     User
 } from '../api';
 import './info.css';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faFlag, faStar, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFlag, faStar, faSync, faTrash } from "@fortawesome/free-solid-svg-icons";
 import TopPlayersGraph from '../user/graph'; // Adjusted import path
-import {ToastContainer} from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import RegisterPopup from './registerPopup';
 import WorldFlags from 'react-world-flags';
-import {getCurrentUser} from "../Utils.tsx"; // Import flag component if using a library
+import UserCompletionRadar from '../user/radar'; // Import the updated Radar component
+import { getCurrentUser } from "../Utils.tsx"; // Import flag component if using a library
 
 const ScoreboardInfo: React.FC = () => {
-    const {scoreboardName} = useParams<{ scoreboardName: string }>();
+    const { scoreboardName } = useParams<{ scoreboardName: string }>();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -77,6 +78,7 @@ const ScoreboardInfo: React.FC = () => {
                                     score: userData.score,
                                     solved_challenges: solvedChallenges,
                                     country: userData.country, // Add country code
+                                    completion: userData.completion,
                                     loading: false,
                                 };
                             }
@@ -117,7 +119,7 @@ const ScoreboardInfo: React.FC = () => {
     };
 
     const handleRefreshUsers = async () => {
-        setUsers(prevUsers => prevUsers.map(user => ({...user, loading: true})));
+        setUsers(prevUsers => prevUsers.map(user => ({ ...user, loading: true })));
 
         try {
             await Promise.all(users.map(async (user) => {
@@ -159,7 +161,7 @@ const ScoreboardInfo: React.FC = () => {
                     console.error(`Failed to refresh data for user ${user.username}:`, err);
                     setUsers(prevUsers => prevUsers.map(u =>
                         u.username === user.username
-                            ? {...u, loading: false}
+                            ? { ...u, loading: false }
                             : u
                     ));
                 }
@@ -190,9 +192,10 @@ const ScoreboardInfo: React.FC = () => {
             </div>
 
             {currentUser && currentUser === owner && (
-            <div className="box-center">
-                <RegisterPopup onRegister={handleRegisterUser} scoreboardName={scoreboardName}/>
-            </div>)}
+                <div className="box-center">
+                    <RegisterPopup onRegister={handleRegisterUser} scoreboardName={scoreboardName}/>
+                </div>
+            )}
             <ToastContainer
                 position="top-right"
                 autoClose={5000}
@@ -201,9 +204,18 @@ const ScoreboardInfo: React.FC = () => {
                 closeOnClick
                 theme="dark"
             />
-
-            <h2 className="section-title">Scores of Top 10 Players</h2>
-            <TopPlayersGraph users={sortedUsers.slice(0, 10)}/>
+            {sortedUsers.length > 0 && (
+                <div>
+                    <div className="scoreboard-graph-container">
+                        <h2 className="section-title">Scores of Top 10 Players</h2>
+                        <TopPlayersGraph users={sortedUsers.slice(0, 10)}/>
+                    </div>
+                    <div className="user-completion-radar-container">
+                        <h2 className="section-title">Overall Progression</h2>
+                    <UserCompletionRadar completions={sortedUsers.slice(0, 3)} useScore={false}/>
+                    </div>
+                </div>
+            )}
 
             <div id="leaderboard-title" className="section-title">
                 <h2>Leaderboard</h2>
@@ -238,9 +250,10 @@ const ScoreboardInfo: React.FC = () => {
                             </div>
                         </div>
                         {currentUser && currentUser === owner && (
-                        <button onClick={() => handleDeleteUser(user.username)} className="delete-button">
-                            <FontAwesomeIcon icon={faTrash}/>
-                        </button>)}
+                            <button onClick={() => handleDeleteUser(user.username)} className="delete-button">
+                                <FontAwesomeIcon icon={faTrash}/>
+                            </button>
+                        )}
                     </li>
                 ))}
             </ol>

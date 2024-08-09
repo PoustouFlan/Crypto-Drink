@@ -26,3 +26,16 @@ export const getCurrentUser = (): string | null => {
         return null;
     }
 };
+
+export const colorScheme = [
+    'hsl(0, 70%, 50%)',     // Red
+    'hsl(36, 70%, 50%)',    // Orange
+    'hsl(72, 70%, 50%)',    // Yellow
+    'hsl(108, 70%, 50%)',   // Green
+    'hsl(144, 70%, 50%)',   // Light Green
+    'hsl(180, 70%, 50%)',   // Cyan
+    'hsl(216, 70%, 50%)',   // Blue
+    'hsl(252, 70%, 50%)',   // Purple
+    'hsl(288, 70%, 50%)',   // Magenta
+    'hsl(324, 70%, 50%)'    // Pink
+];

@@ -1,5 +1,6 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Line} from 'react-chartjs-2';
+// src/user/graph.tsx
+import React, { useEffect, useRef, useState } from 'react';
+import { Line } from 'react-chartjs-2';
 import {
     CategoryScale,
     Chart as ChartJS,
@@ -17,6 +18,9 @@ import zoomPlugin from 'chartjs-plugin-zoom';
 import 'chartjs-adapter-moment'; // for time scale
 import "./graph.css";
 import {User} from '../api';
+import {colorScheme} from '../Utils';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCompress, faExpand} from "@fortawesome/free-solid-svg-icons";
 
 ChartJS.register(
     CategoryScale,
@@ -28,11 +32,8 @@ ChartJS.register(
     Legend,
     TimeScale,
     Filler,
-    zoomPlugin // Register the zoom plugin
+    zoomPlugin
 );
-
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faExpand, faCompress} from "@fortawesome/free-solid-svg-icons";
 
 interface ScoreEntry {
     date: string;
@@ -44,11 +45,11 @@ interface ScoreGraphProps {
     singleUser?: boolean;
 }
 
-const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
+const ScoreGraph: React.FC<ScoreGraphProps> = ({ users, singleUser = false }) => {
     const [cumulativeScores, setCumulativeScores] = useState<ScoreEntry[][]>([]);
     const [timeRange, setTimeRange] = useState<'week' | 'month' | '4months' | 'year' | 'all'>('all');
-    const [endDate, setEndDate] = useState<Date | null>(null); // Store the end date
-    const [isFullScreen, setIsFullScreen] = useState(false); // Track fullscreen mode
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [isFullScreen, setIsFullScreen] = useState(false);
     const chartRef = useRef<any>(null);
 
     useEffect(() => {
@@ -85,7 +86,6 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
 
             setCumulativeScores(scores);
 
-            // Set the end date to the last date of the dataset
             if (sortedDates.length > 0) {
                 setEndDate(new Date(sortedDates[sortedDates.length - 1]));
             }
@@ -117,30 +117,28 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
                 break;
         }
 
-        return {min: startDate.getTime(), max: endDate.getTime()}; // Return timestamps
+        return { min: startDate.getTime(), max: endDate.getTime() };
     };
 
     useEffect(() => {
         if (chartRef.current) {
             const chart = chartRef.current;
-            const {min, max} = getTimeRangeLimits(timeRange, endDate);
+            const { min, max } = getTimeRangeLimits(timeRange, endDate);
 
-            // Update x-axis with new range
             chart.options.scales.x.min = min;
             chart.options.scales.x.max = max;
 
-            // Force the chart to re-render
-            chart.update('none'); // Avoid animation when updating
+            chart.update('none');
         }
-    }, [timeRange, cumulativeScores, endDate]);
+    }, [timeRange, endDate, cumulativeScores]);
 
     const data = {
-        labels: cumulativeScores[0]?.map((cs: any) => cs.date) || [],
+        labels: cumulativeScores[0]?.map(score => score.date) || [],
         datasets: users.map((user, index) => ({
-            label: singleUser ? 'Score' : user.username,
-            data: cumulativeScores[index]?.map((cs: any) => cs.score) || [],
-            borderColor: singleUser ? 'rgba(255, 99, 132, 1)' : `hsl(${index * 36}, 70%, 50%)`,
-            backgroundColor: singleUser ? 'rgba(255, 99, 132, 0.2)' : `hsla(${index * 36}, 70%, 50%, 0.2)`,
+            label: user.username,
+            data: cumulativeScores[index]?.map(score => score.score) || [],
+            borderColor: singleUser ? 'rgba(255, 99, 132, 1)' : colorScheme[index] || 'rgba(34, 202, 236, 1)',
+            backgroundColor: singleUser ? 'rgba(255, 99, 132, 0.2)' : 'rgba(34, 202, 236, 0.2)',
             fill: singleUser,
             pointRadius: singleUser || timeRange === 'week' || timeRange === "month" ? 3 : 0, // Show points for week or less
         })),
@@ -223,7 +221,7 @@ const ScoreGraph: React.FC<ScoreGraphProps> = ({users, singleUser = false}) => {
                 </div>
                 <button onClick={handleFullScreen}>{isFullScreen ? <FontAwesomeIcon icon={faCompress}/> : <FontAwesomeIcon icon={faExpand} />}</button>
             </div>
-            <Line ref={chartRef} data={data} options={options}/>
+            <Line ref={chartRef} data={data} options={options} />
         </div>
     );
 };
