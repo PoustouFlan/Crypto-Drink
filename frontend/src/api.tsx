@@ -24,6 +24,14 @@ export interface SolvedChallenge {
     loadingPoints?: boolean;
 }
 
+export interface Completion {
+    name: string;
+    solved: number;
+    total: number;
+    score: number;
+    total_score: number;
+}
+
 export interface User {
     loading?: boolean;
     username: string;
@@ -34,13 +42,7 @@ export interface User {
     score: number;
     first_bloods?: number;
     solved_challenges: SolvedChallenge[];
-    completion?: {
-        name: string;
-        solved: number;
-        total: number;
-        score: number;
-        total_score: number;
-    }[];
+    completion?: Completion[];
     last_refreshed?: string;
 }
 
