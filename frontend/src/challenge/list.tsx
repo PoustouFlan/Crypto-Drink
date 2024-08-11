@@ -21,7 +21,7 @@ const ChallengeList: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const challengesData = await fetchChallengesByCategory(categoryName);
+                const challengesData = await fetchChallengesByCategory(decodeURIComponent(categoryName));
                 setChallenges(challengesData.challenges);
             } catch (err) {
                 setError(err as Error);
