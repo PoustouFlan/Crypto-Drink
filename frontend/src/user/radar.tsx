@@ -57,8 +57,9 @@ const UserCompletionRadar: React.FC<UserCompletionRadarProps> = ({ completions, 
             tooltip: {
                 callbacks: {
                     label: function (context: any) {
+                        const datasetIndex = context.datasetIndex;
                         const index = context.dataIndex;
-                        const category = filteredCompletion(completions[0])[index];
+                        const category = filteredCompletion(completions[datasetIndex])[index];
                         if (showScore) {
                             return `${category.name}: ${category.score} / ${category.total_score} (${Math.round(context.raw)}%)`;
                         } else {
