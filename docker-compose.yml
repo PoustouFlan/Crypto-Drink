@@ -12,7 +12,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=cryptodrink
     ports:
-      - "8080:8080"
+      - "8080"
     depends_on:
       db:
         condition: service_healthy
@@ -26,8 +26,6 @@ services:
     volumes:
       - ./frontend/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./frontend/nginx/conf.d:/etc/nginx/conf.d
-        # ports:
-        #   - "80"
     depends_on:
       - backend
     networks:
@@ -41,8 +39,8 @@ services:
       POSTGRES_DB: cryptodrink
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    expose:
-      - 5432
+    ports:
+      - "5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 3s
