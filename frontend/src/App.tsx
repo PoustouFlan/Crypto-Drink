@@ -33,9 +33,14 @@ const App: React.FC = () => {
                 <Route path="/scoreboard/:scoreboardName/category/:categoryName/:challengeName" element={<ChallengeFlaggers />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/logout" element={<LogoutPage />} />
+                <Route path="/205-s-01" element={<EasterEgg />} />
             </Routes>
         </Router>
     );
 };
 
+const EasterEgg: React.FC = () => {
+    const flag = "ASM{Reference_Easter_Egg!}";
+    return <h1>{flag}</h1>
+}
 export default App;
